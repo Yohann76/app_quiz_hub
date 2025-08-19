@@ -1,0 +1,10 @@
+1:"Los border collies son generalmente:":"negro y blanco":"negro y fuego":"fuego y azul":"fuego":rep1:general:"¡Los border collies son generalmente negro y blanco!":1
+2:"¿Cuál es la capital de España?":"Barcelona":"Valencia":"Madrid":"Sevilla":rep3:geografia:"Madrid es la capital de España desde 1561.":1
+3:"¿Cuántos lados tiene un hexágono?":"4":"5":"6":"8":rep3:matematicas:"Un hexágono tiene exactamente 6 lados.":1
+4:"¿Cuál es el océano más grande del mundo?":"Océano Atlántico":"Océano Pacífico":"Océano Índico":"Océano Ártico":rep2:geografia:"El Océano Pacífico es el océano más grande del mundo.":1
+5:"¿Quién pintó la Mona Lisa?":"Miguel Ángel":"Leonardo da Vinci":"Rafael":"Botticelli":rep2:arte:"La Mona Lisa fue pintada por Leonardo da Vinci a principios del siglo XVI.":2
+6:"¿Cuántos planetas en nuestro sistema solar?":"7":"8":"9":"10":rep2:ciencia:"Hay 8 planetas en nuestro sistema solar (Plutón ya no se considera un planeta).":1
+7:"¿Cuál es el símbolo químico del oro?":"Ag":"Au":"Fe":"Cu":rep2:ciencia:"Au viene del latín 'aurum' que significa oro.":1
+8:"¿En qué año comenzó la Revolución Francesa?":"1789":"1799":"1769":"1779":rep1:historia:"La Revolución Francesa comenzó en 1789 con la toma de la Bastilla.":2
+9:"¿Cuál es el desierto más grande del mundo?":"Sahara":"Gobi":"Antártida":"Kalahari":rep3:geografia:"La Antártida es el desierto más grande del mundo (desierto frío).":2
+10:"¿Cuántos jugadores en un equipo de fútbol?":"9":"10":"11":"12":rep3:deporte:"Un equipo de fútbol tiene 11 jugadores en el campo.":1

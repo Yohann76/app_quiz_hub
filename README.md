@@ -36,5 +36,4 @@ $ flutter run -d emulator-5554
 
 - Dart: https://dart.dev/
 - Flutter: https://flutter.dev/
-
 - Firebase: https://firebase.google.com/

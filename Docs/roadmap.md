@@ -1,11 +1,17 @@
 # Roadmap 
 
 - Create Flutter App
-- User Connexion
-- Onboarding (Choice language)
+- User Connexion (Local?)
+- Score on line (firebase)
+- Configure Firebase?
+- Onboarding (Choice language, Choice name)(Setting in profil)
 - Quizz file (fr_app_content,en_app_content,es_app_content)
 - Create quizz (4 proposition, 1 good response, add note...)
 - Profil page (Stats with Category....)
+
+Option:
+- Add image in question (in note)(in assets)
+- Add image in response (in note)(in assets)
 
 ## Define the objective
 
