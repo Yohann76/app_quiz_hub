@@ -8,7 +8,7 @@ Choice version:
 
 ``` 
 $ flutter run 
-$ flutter run -d chrome (http://localhost:55424/)
+$ flutter run -d chrome (http://localhost:55424/, http://localhost:61228/)
 $ flutter run -d android  
 ```
 
