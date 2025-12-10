@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/app_constants.dart';
+import 'core/config/supabase_config.dart';
 import 'features/onboarding/language_selection_screen.dart';
 import 'features/quiz/home_screen.dart';
 import 'features/quiz/quiz_screen.dart';
@@ -8,6 +11,16 @@ import 'features/profile/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Charger les variables d'environnement depuis le fichier .env
+  await dotenv.load(fileName: ".env");
+  
+  // Initialiser Supabase
+  await Supabase.initialize(
+    url: SupabaseConfig.supabaseUrl,
+    anonKey: SupabaseConfig.supabaseAnonKey,
+  );
+  
   runApp(const QuizHubApp());
 }
 

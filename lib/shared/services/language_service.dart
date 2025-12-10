@@ -34,7 +34,7 @@ class LanguageService implements ILanguageService {
   Future<List<Question>> loadQuestionsForLanguage(Language language) async {
     try {
       // Pour l'instant, on va créer des questions d'exemple
-      // Plus tard, on chargera depuis Firebase ou des fichiers locaux
+      // Plus tard, on chargera depuis Supabase ou des fichiers locaux
       return _generateSampleQuestions(language);
     } catch (e) {
       throw Exception('Erreur lors du chargement des questions: $e');

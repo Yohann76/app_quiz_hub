@@ -3,10 +3,10 @@ class AppConstants {
   static const String appName = 'Quiz Hub';
   static const String appVersion = '1.0.0';
   
-  // Firebase Collections
-  static const String usersCollection = 'users';
-  static const String userStatsCollection = 'user_stats';
-  static const String quizHistoryCollection = 'quiz_history';
+  // Supabase Tables
+  static const String usersTable = 'users';
+  static const String userStatsTable = 'user_stats';
+  static const String quizHistoryTable = 'quiz_history';
   
   // Shared Preferences Keys
   static const String selectedLanguageKey = 'selected_language';
