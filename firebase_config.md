@@ -1,3 +1,5 @@
+# TODO: remove all instance firebase and replace per supabase https://supabase.com/
+
 # Configuration Firebase pour Quiz Hub
 
 ## 🔥 Étapes de configuration
