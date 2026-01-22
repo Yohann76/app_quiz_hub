@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_constants.dart';
 import '../../shared/models/language.dart';
 import '../../shared/services/language_service.dart';
+import '../../shared/services/auth_service.dart';
+import '../../shared/services/user_service.dart';
+import '../../shared/services/database_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,9 +24,38 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadCurrentLanguage();
   }
 
+  /// Charger la langue depuis Supabase (priorité) ou depuis le cache local
   Future<void> _loadCurrentLanguage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final authService = AuthService();
+      
+      // Si l'utilisateur est connecté, charger depuis Supabase
+      if (authService.isAuthenticated) {
+        try {
+          final userService = UserService(
+            authService: authService,
+            databaseService: DatabaseService(),
+            prefs: prefs,
+          );
+          
+          final profile = await userService.getCurrentProfile();
+          if (profile?.language != null) {
+            if (mounted) {
+              setState(() {
+                _currentLanguage = profile!.language;
+                _isLoading = false;
+              });
+            }
+            return;
+          }
+        } catch (e) {
+          // Si erreur Supabase, fallback sur cache local
+          print('Erreur lors du chargement depuis Supabase: $e');
+        }
+      }
+      
+      // Fallback : charger depuis le cache local (SharedPreferences)
       final languageService = LanguageService(prefs);
       final language = await languageService.getCurrentLanguage();
       
@@ -190,13 +222,85 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => _LanguageSelectorBottomSheet(
         currentLanguage: _currentLanguage,
-        onLanguageChanged: (language) {
+        onLanguageChanged: (language) async {
+          // Mettre à jour l'état local immédiatement
           setState(() {
             _currentLanguage = language;
           });
+          
+          // Sauvegarder dans Supabase et cache local
+          await _saveLanguage(language);
         },
       ),
     );
+  }
+
+  /// Sauvegarder la langue dans Supabase (si connecté) et dans le cache local
+  Future<void> _saveLanguage(Language language) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authService = AuthService();
+      
+      // Si l'utilisateur est connecté, sauvegarder dans Supabase
+      if (authService.isAuthenticated) {
+        try {
+          final userService = UserService(
+            authService: authService,
+            databaseService: DatabaseService(),
+            prefs: prefs,
+          );
+          
+          await userService.updateLanguage(language);
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Langue sauvegardée avec succès'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+          return;
+        } catch (e) {
+          // Si erreur Supabase, sauvegarder quand même dans le cache local
+          print('Erreur lors de la sauvegarde dans Supabase: $e');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Langue sauvegardée localement (erreur Supabase: $e)'),
+                backgroundColor: Colors.orange,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+      }
+      
+      // Sauvegarder dans le cache local (SharedPreferences)
+      final languageService = LanguageService(prefs);
+      await languageService.setLanguage(language);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Langue sauvegardée localement'),
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de la sauvegarde: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
 

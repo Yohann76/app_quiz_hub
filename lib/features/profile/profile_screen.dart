@@ -5,6 +5,7 @@ import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
 import '../../shared/services/database_service.dart';
 import '../../shared/models/user_profile.dart';
+import '../../shared/models/language.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,6 +16,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   UserProfile? _userProfile;
+  Language? _currentLanguage;
   bool _isLoading = true;
 
   @override
@@ -38,6 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         setState(() {
           _userProfile = profile;
+          _currentLanguage = profile?.language;
           _isLoading = false;
         });
       }
@@ -50,12 +53,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// Sauvegarder la langue dans Supabase et cache local
+  Future<void> _saveLanguage(Language language) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authService = AuthService();
+      
+      if (authService.isAuthenticated) {
+        final userService = UserService(
+          authService: authService,
+          databaseService: DatabaseService(),
+          prefs: prefs,
+        );
+        
+        await userService.updateLanguage(language);
+        
+        // Recharger le profil pour mettre à jour l'affichage
+        await _loadUserProfile();
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Langue sauvegardée avec succès'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de la sauvegarde: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  void _showLanguageSelector() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _LanguageSelectorBottomSheet(
+        currentLanguage: _currentLanguage,
+        onLanguageChanged: (language) async {
+          await _saveLanguage(language);
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: _showLanguageSelector,
+            tooltip: 'Changer de langue',
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -543,6 +611,62 @@ class _StatItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _LanguageSelectorBottomSheet extends StatelessWidget {
+  final Language? currentLanguage;
+  final Function(Language) onLanguageChanged;
+
+  const _LanguageSelectorBottomSheet({
+    required this.currentLanguage,
+    required this.onLanguageChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(top: AppConstants.smallPadding),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            child: Text(
+              'Changer de langue',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
+          ...Language.values.map((language) => ListTile(
+            leading: Icon(
+              Icons.flag,
+              color: language == currentLanguage ? Colors.blue : Colors.grey,
+            ),
+            title: Text(language.displayName),
+            trailing: language == currentLanguage
+                ? const Icon(Icons.check, color: Colors.blue)
+                : null,
+            onTap: () {
+              onLanguageChanged(language);
+              Navigator.pop(context);
+            },
+          )),
+          const SizedBox(height: AppConstants.defaultPadding),
+        ],
+      ),
     );
   }
 }

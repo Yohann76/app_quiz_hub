@@ -7,7 +7,7 @@
 - Quizz file (fr_app_content,en_app_content,es_app_content)
 - Profil page (Stats with Category....)
 
-- Reselect language in top navbar, and sync on DB supabase
+- When language is selected, translate all texte in interface
 
 ## V2
 
