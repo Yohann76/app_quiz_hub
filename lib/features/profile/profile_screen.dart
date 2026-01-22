@@ -177,6 +177,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 const SizedBox(height: AppConstants.defaultPadding),
                 
+                // Classement
+                _LeaderboardCard(),
+                
+                const SizedBox(height: AppConstants.defaultPadding),
+                
                 // Graphique en forme d'araignée par catégorie
                 _CategoryRadarChartCard(stats: _userStats),
                 
@@ -184,16 +189,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 // Points par catégorie
                 _CategoryStatsCard(stats: _userStats),
-                
-                const SizedBox(height: AppConstants.defaultPadding),
-                
-                // Historique des dernières questions
-                _RecentHistoryCard(),
-                
-                const SizedBox(height: AppConstants.defaultPadding),
-                
-                // Classement
-                _LeaderboardCard(),
               ],
             ),
           ),
@@ -789,69 +784,6 @@ class _CategoryProgress extends StatelessWidget {
           valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
       ],
-    );
-  }
-}
-
-class _RecentHistoryCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.history,
-                color: Colors.white,
-                size: 24,
-              ),
-              const SizedBox(width: AppConstants.smallPadding),
-              const Text(
-                'Historique Récent',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppConstants.defaultPadding),
-          const Center(
-            child: Column(
-              children: [
-                Icon(
-                  Icons.history,
-                  size: 60,
-                  color: Colors.white54,
-                ),
-                SizedBox(height: AppConstants.smallPadding),
-                Text(
-                  'Aucun quiz terminé',
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 16,
-                  ),
-                ),
-                Text(
-                  'Commencez votre premier quiz !',
-                  style: TextStyle(
-                    color: Colors.white38,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

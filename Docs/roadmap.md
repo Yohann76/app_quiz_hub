@@ -3,8 +3,8 @@
 ## V1 
 
 Profil page:
-- classement?
-- History (delete?)
+- classement page (need many user? must be display classement x/x, top 20%, top 10%...)
+
 
 Game: 
 - Complete Quizz file (fr_app_content,en_app_content,es_app_content)(test)
