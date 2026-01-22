@@ -4,6 +4,8 @@ import '../../core/constants/app_constants.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
 import '../../shared/services/database_service.dart';
+import '../../shared/services/quiz_service.dart';
+import '../../shared/services/language_service.dart';
 import '../../shared/models/user_profile.dart';
 import '../../shared/models/language.dart';
 
@@ -17,6 +19,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   UserProfile? _userProfile;
   Language? _currentLanguage;
+  Map<String, dynamic>? _userStats;
   bool _isLoading = true;
 
   @override
@@ -36,11 +39,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
 
       final profile = await userService.getCurrentProfile();
+      final language = profile?.language;
+      
+      // Charger les statistiques calculées depuis user_question_responses
+      Map<String, dynamic>? stats;
+      if (authService.isAuthenticated) {
+        final languageService = LanguageService(prefs);
+        final quizService = QuizService(
+          languageService: languageService,
+          databaseService: DatabaseService(),
+          authService: authService,
+          prefs: prefs,
+        );
+        stats = await quizService.calculateUserStats(language: language);
+      }
       
       if (mounted) {
         setState(() {
           _userProfile = profile;
-          _currentLanguage = profile?.language;
+          _currentLanguage = language;
+          _userStats = stats;
           _isLoading = false;
         });
       }
@@ -147,12 +165,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: AppConstants.largePadding),
                 
                 // Statistiques globales
-                _GlobalStatsCard(),
+                _GlobalStatsCard(stats: _userStats),
                 
                 const SizedBox(height: AppConstants.defaultPadding),
                 
                 // Points par catégorie
-                _CategoryStatsCard(),
+                _CategoryStatsCard(stats: _userStats),
                 
                 const SizedBox(height: AppConstants.defaultPadding),
                 
@@ -274,8 +292,16 @@ class _ProfileHeader extends StatelessWidget {
 }
 
 class _GlobalStatsCard extends StatelessWidget {
+  final Map<String, dynamic>? stats;
+
+  const _GlobalStatsCard({this.stats});
+
   @override
   Widget build(BuildContext context) {
+    final totalCorrect = stats?['total_correct_answers'] as int? ?? 0;
+    final totalQuestions = stats?['total_questions'] as int? ?? 0;
+    final averageScore = stats?['average_score'] as double? ?? 0.0;
+
     return Container(
       padding: const EdgeInsets.all(AppConstants.defaultPadding),
       decoration: BoxDecoration(
@@ -309,25 +335,25 @@ class _GlobalStatsCard extends StatelessWidget {
             children: [
               _StatItem(
                 icon: Icons.check_circle,
-                value: '0',
+                value: totalCorrect.toString(),
                 label: 'Correctes',
                 color: Colors.green,
               ),
               _StatItem(
                 icon: Icons.quiz,
-                value: '0',
+                value: totalQuestions.toString(),
                 label: 'Total',
                 color: Colors.blue,
               ),
               _StatItem(
                 icon: Icons.trending_up,
-                value: '0%',
+                value: '${averageScore.toStringAsFixed(1)}%',
                 label: 'Précision',
                 color: Colors.orange,
               ),
               _StatItem(
                 icon: Icons.star,
-                value: '0',
+                value: totalCorrect.toString(),
                 label: 'Score',
                 color: Colors.yellow,
               ),
@@ -340,8 +366,34 @@ class _GlobalStatsCard extends StatelessWidget {
 }
 
 class _CategoryStatsCard extends StatelessWidget {
+  final Map<String, dynamic>? stats;
+
+  const _CategoryStatsCard({this.stats});
+
   @override
   Widget build(BuildContext context) {
+    final totalByCategory = stats?['total_by_category'] as Map<String, dynamic>? ?? {};
+    final correctByCategory = stats?['total_correct_by_category'] as Map<String, dynamic>? ?? {};
+
+    // Couleurs par catégorie
+    final categoryColors = {
+      'general': Colors.blue,
+      'geographie': Colors.green,
+      'geography': Colors.green,
+      'geografia': Colors.green,
+      'histoire': Colors.orange,
+      'history': Colors.orange,
+      'historia': Colors.orange,
+      'science': Colors.purple,
+      'sciences': Colors.purple,
+      'ciencia': Colors.purple,
+      'mathematiques': Colors.red,
+      'mathematics': Colors.red,
+      'matematicas': Colors.red,
+    };
+
+    final categories = totalByCategory.keys.toList();
+
     return Container(
       padding: const EdgeInsets.all(AppConstants.defaultPadding),
       decoration: BoxDecoration(
@@ -370,29 +422,34 @@ class _CategoryStatsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppConstants.defaultPadding),
-          _CategoryProgress(
-            category: 'Général',
-            progress: 0.0,
-            color: Colors.blue,
-          ),
-          const SizedBox(height: AppConstants.smallPadding),
-          _CategoryProgress(
-            category: 'Géographie',
-            progress: 0.0,
-            color: Colors.green,
-          ),
-          const SizedBox(height: AppConstants.smallPadding),
-          _CategoryProgress(
-            category: 'Histoire',
-            progress: 0.0,
-            color: Colors.orange,
-          ),
-          const SizedBox(height: AppConstants.smallPadding),
-          _CategoryProgress(
-            category: 'Sciences',
-            progress: 0.0,
-            color: Colors.purple,
-          ),
+          if (categories.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(AppConstants.defaultPadding),
+                child: Text(
+                  'Aucune statistique par catégorie',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ),
+            )
+          else
+            ...categories.map((category) {
+              final total = (totalByCategory[category] as int? ?? 0);
+              final correct = (correctByCategory[category] as int? ?? 0);
+              final progress = total > 0 ? correct / total : 0.0;
+              final color = categoryColors[category.toLowerCase()] ?? Colors.grey;
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppConstants.smallPadding),
+                child: _CategoryProgress(
+                  category: category,
+                  progress: progress,
+                  color: color,
+                  correct: correct,
+                  total: total,
+                ),
+              );
+            }),
         ],
       ),
     );
@@ -403,11 +460,15 @@ class _CategoryProgress extends StatelessWidget {
   final String category;
   final double progress;
   final Color color;
+  final int correct;
+  final int total;
 
   const _CategoryProgress({
     required this.category,
     required this.progress,
     required this.color,
+    this.correct = 0,
+    this.total = 0,
   });
 
   @override
@@ -418,15 +479,17 @@ class _CategoryProgress extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              category,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
+            Expanded(
+              child: Text(
+                category,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
             ),
             Text(
-              '${(progress * 100).toInt()}%',
+              '$correct/$total (${(progress * 100).toInt()}%)',
               style: TextStyle(
                 color: color,
                 fontSize: 14,

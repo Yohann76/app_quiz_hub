@@ -93,46 +93,81 @@ class QuizService {
             'answered_at': DateTime.now().toIso8601String(),
           });
 
-      // Mettre à jour les statistiques globales
-      await _updateUserStats(isCorrect);
+      // Les statistiques sont calculées dynamiquement depuis user_question_responses
+      // Plus besoin de mettre à jour user_stats
     } catch (e) {
       throw Exception('Erreur lors de la sauvegarde de la réponse: $e');
     }
   }
 
-  /// Mettre à jour les statistiques utilisateur
-  Future<void> _updateUserStats(bool isCorrect) async {
+  /// Calculer les statistiques depuis user_question_responses
+  Future<Map<String, dynamic>> calculateUserStats({Language? language}) async {
     final user = _authService.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      return {
+        'total_questions': 0,
+        'total_correct_answers': 0,
+        'average_score': 0.0,
+        'total_by_category': <String, int>{},
+        'total_correct_by_category': <String, int>{},
+      };
+    }
 
     try {
-      // Récupérer les stats actuelles
-      final currentStats = await _databaseService.getUserStats(user.id);
+      final supabase = Supabase.instance.client;
       
-      final totalQuestions = (currentStats?['total_questions'] as int? ?? 0) + 1;
-      final totalCorrect = (currentStats?['total_correct_answers'] as int? ?? 0) + (isCorrect ? 1 : 0);
+      // Construire la requête
+      var query = supabase
+          .from('user_question_responses')
+          .select()
+          .eq('user_id', user.id);
+      
+      // Filtrer par langue si spécifiée
+      if (language != null) {
+        query = query.eq('language', language.code);
+      }
+      
+      final response = await query;
+      final List<dynamic> data = response;
+      
+      final totalQuestions = data.length;
+      final totalCorrect = data.where((r) => r['is_correct'] == true).length;
       final averageScore = totalQuestions > 0 ? (totalCorrect / totalQuestions * 100) : 0.0;
-
-      // Mettre à jour les stats
-      await _databaseService.saveUserStats(
-        userId: user.id,
-        stats: {
-          'total_questions': totalQuestions,
-          'total_correct_answers': totalCorrect,
-          'average_score': averageScore,
-        },
-      );
+      
+      // Calculer par catégorie
+      final Map<String, int> totalByCategory = {};
+      final Map<String, int> correctByCategory = {};
+      
+      for (final response in data) {
+        final category = response['category'] as String? ?? 'unknown';
+        totalByCategory[category] = (totalByCategory[category] ?? 0) + 1;
+        if (response['is_correct'] == true) {
+          correctByCategory[category] = (correctByCategory[category] ?? 0) + 1;
+        }
+      }
+      
+      return {
+        'total_questions': totalQuestions,
+        'total_correct_answers': totalCorrect,
+        'average_score': averageScore,
+        'total_by_category': totalByCategory,
+        'total_correct_by_category': correctByCategory,
+      };
     } catch (e) {
-      print('Erreur lors de la mise à jour des stats: $e');
+      print('Erreur lors du calcul des stats: $e');
+      return {
+        'total_questions': 0,
+        'total_correct_answers': 0,
+        'average_score': 0.0,
+        'total_by_category': <String, int>{},
+        'total_correct_by_category': <String, int>{},
+      };
     }
   }
 
-  /// Obtenir les statistiques de l'utilisateur
-  Future<Map<String, dynamic>?> getUserStats() async {
-    final user = _authService.currentUser;
-    if (user == null) return null;
-
-    return await _databaseService.getUserStats(user.id);
+  /// Obtenir les statistiques de l'utilisateur (calculées depuis user_question_responses)
+  Future<Map<String, dynamic>> getUserStats({Language? language}) async {
+    return await calculateUserStats(language: language);
   }
 }
 
