@@ -3,11 +3,11 @@
 ## V1 
 
 Profil page:
-- Graph with response by category (arraigne graph)
-- Verify bug from count categoru (category in en/fr/es) -> give good stats?
+- classement?
+- History (delete?)
 
 Game: 
-- Quizz file (fr_app_content,en_app_content,es_app_content)(test)
+- Complete Quizz file (fr_app_content,en_app_content,es_app_content)(test)
 - Sound when good response is check 
 
 App:

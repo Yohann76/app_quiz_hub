@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/question.dart';
@@ -6,6 +7,7 @@ import 'language_service.dart';
 import 'database_service.dart';
 import 'auth_service.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/utils/category_normalizer.dart';
 
 /// Service pour gérer le quiz et la progression
 class QuizService {
@@ -81,6 +83,9 @@ class QuizService {
 
     try {
       // Enregistrer la réponse dans user_question_responses
+      // Normaliser la catégorie vers le français pour cohérence
+      final normalizedCategory = CategoryNormalizer.normalize(question.category);
+      
       final supabase = Supabase.instance.client;
       await supabase
           .from('user_question_responses')
@@ -90,7 +95,7 @@ class QuizService {
             'language': language.code,
             'is_correct': isCorrect,
             'selected_answer_index': selectedAnswerIndex,
-            'category': question.category,
+            'category': normalizedCategory, // Catégorie normalisée
             'difficulty': question.difficulty,
             'answered_at': DateTime.now().toIso8601String(),
           });
@@ -132,20 +137,40 @@ class QuizService {
       final response = await query;
       final List<dynamic> data = response;
       
+      // Debug: afficher le nombre de réponses récupérées
+      if (kDebugMode) {
+        print('📊 calculateUserStats: ${data.length} réponses récupérées depuis Supabase');
+        if (data.isNotEmpty) {
+          print('📊 Première réponse: ${data.first}');
+        }
+      }
+      
       final totalQuestions = data.length;
       final totalCorrect = data.where((r) => r['is_correct'] == true).length;
       final averageScore = totalQuestions > 0 ? (totalCorrect / totalQuestions * 100) : 0.0;
       
-      // Calculer par catégorie
+      // Calculer par catégorie (normalisées vers le français)
       final Map<String, int> totalByCategory = {};
       final Map<String, int> correctByCategory = {};
       
       for (final response in data) {
-        final category = response['category'] as String? ?? 'unknown';
+        final rawCategory = response['category'] as String? ?? 'unknown';
+        // Normaliser la catégorie vers le français
+        final category = CategoryNormalizer.normalize(rawCategory);
+        
+        if (kDebugMode && rawCategory != category) {
+          print('📊 Catégorie normalisée: "$rawCategory" → "$category"');
+        }
+        
         totalByCategory[category] = (totalByCategory[category] ?? 0) + 1;
         if (response['is_correct'] == true) {
           correctByCategory[category] = (correctByCategory[category] ?? 0) + 1;
         }
+      }
+      
+      if (kDebugMode) {
+        print('📊 Stats calculées: $totalQuestions questions, $totalCorrect correctes');
+        print('📊 Catégories: $totalByCategory');
       }
       
       return {

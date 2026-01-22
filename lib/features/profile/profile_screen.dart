@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/utils/category_normalizer.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
 import '../../shared/services/database_service.dart';
@@ -51,7 +54,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           authService: authService,
           prefs: prefs,
         );
-        stats = await quizService.calculateUserStats(language: language);
+        // Ne pas filtrer par langue pour avoir toutes les stats
+        stats = await quizService.calculateUserStats(language: null);
       }
       
       if (mounted) {
@@ -166,6 +170,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 // Statistiques globales
                 _GlobalStatsCard(stats: _userStats),
+                
+                const SizedBox(height: AppConstants.defaultPadding),
+                
+                // Graphique en forme d'araignée par catégorie
+                _CategoryRadarChartCard(stats: _userStats),
                 
                 const SizedBox(height: AppConstants.defaultPadding),
                 
@@ -453,6 +462,277 @@ class _CategoryStatsCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _CategoryRadarChartCard extends StatelessWidget {
+  final Map<String, dynamic>? stats;
+
+  const _CategoryRadarChartCard({this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    final totalByCategory = stats?['total_by_category'] as Map<String, dynamic>? ?? {};
+    final correctByCategory = stats?['total_correct_by_category'] as Map<String, dynamic>? ?? {};
+
+    final categories = totalByCategory.keys.toList();
+    
+    if (categories.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        ),
+        child: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(AppConstants.defaultPadding),
+            child: Text(
+              'Aucune donnée pour le graphique',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Le graphique radar nécessite au moins 3 catégories
+    if (categories.length < 3) {
+      return Container(
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.radar,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: AppConstants.smallPadding),
+                const Text(
+                  'Performance par Catégorie',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppConstants.defaultPadding),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.bar_chart,
+                      size: 60,
+                      color: Colors.white54,
+                    ),
+                    const SizedBox(height: AppConstants.smallPadding),
+                    const Text(
+                      'Graphique disponible bientôt',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: AppConstants.smallPadding),
+                    Text(
+                      'Répondez à des questions dans au moins 3 catégories différentes pour voir le graphique radar.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: AppConstants.smallPadding),
+                    Text(
+                      'Catégories actuelles: ${categories.length}/3',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Couleurs par catégorie pour le graphique
+    final categoryColors = {
+      'general': Colors.blue,
+      'geographie': Colors.green,
+      'geography': Colors.green,
+      'geografia': Colors.green,
+      'histoire': Colors.orange,
+      'history': Colors.orange,
+      'historia': Colors.orange,
+      'science': Colors.purple,
+      'sciences': Colors.purple,
+      'ciencia': Colors.purple,
+      'mathematiques': Colors.red,
+      'mathematics': Colors.red,
+      'matematicas': Colors.red,
+      'art': Colors.pink,
+      'arte': Colors.pink,
+      'sport': Colors.teal,
+      'deporte': Colors.teal,
+    };
+
+    // Trier les catégories pour un affichage cohérent (ordre français)
+    final allCategories = CategoryNormalizer.getAllNormalizedCategories();
+    final sortedCategories = categories.where((c) => allCategories.contains(c)).toList()
+      ..sort((a, b) {
+        final indexA = allCategories.indexOf(a);
+        final indexB = allCategories.indexOf(b);
+        return indexA.compareTo(indexB);
+      });
+    // Ajouter les catégories non standardisées à la fin
+    final otherCategories = categories.where((c) => !allCategories.contains(c)).toList();
+    sortedCategories.addAll(otherCategories);
+
+    // Préparer les données pour le graphique radar
+    final List<RadarDataSet> dataSets = [];
+    final List<String> categoryLabels = [];
+    final List<double> values = [];
+
+    for (final category in sortedCategories) {
+      final total = (totalByCategory[category] as int? ?? 0);
+      final correct = (correctByCategory[category] as int? ?? 0);
+      final percentage = total > 0 ? (correct / total * 100) : 0.0;
+      
+      categoryLabels.add(_formatCategoryName(category));
+      values.add(percentage);
+    }
+
+    // Créer le dataset pour le graphique avec une couleur dynamique
+    final primaryColor = categoryColors[categories.isNotEmpty 
+        ? categories[0].toLowerCase() 
+        : 'general'] ?? Colors.blue;
+    
+    dataSets.add(
+      RadarDataSet(
+        entryRadius: 0,
+        dataEntries: values.map((v) => RadarEntry(value: v)).toList(),
+        fillColor: primaryColor.withValues(alpha: 0.3),
+        borderColor: primaryColor,
+        borderWidth: 2.5,
+      ),
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(AppConstants.defaultPadding),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.radar,
+                color: Colors.white,
+                size: 24,
+              ),
+              const SizedBox(width: AppConstants.smallPadding),
+              const Text(
+                'Performance par Catégorie',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppConstants.defaultPadding),
+          // Légende explicative
+          Container(
+            padding: const EdgeInsets.all(AppConstants.smallPadding),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 16, color: Colors.white70),
+                const SizedBox(width: AppConstants.smallPadding),
+                const Text(
+                  'Pourcentage de bonnes réponses par catégorie',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppConstants.defaultPadding),
+          SizedBox(
+            height: 300,
+            child: RadarChart(
+              RadarChartData(
+                dataSets: dataSets,
+                borderData: FlBorderData(show: true),
+                radarBackgroundColor: Colors.white.withValues(alpha: 0.1),
+                tickCount: 5,
+                ticksTextStyle: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 10,
+                ),
+                tickBorderData: const BorderSide(color: Colors.white30, width: 1),
+                gridBorderData: const BorderSide(color: Colors.white30, width: 1),
+                radarTouchData: RadarTouchData(
+                  enabled: true,
+                  touchCallback: (FlTouchEvent event, radarTouchResponse) {
+                    // Afficher les valeurs au survol
+                  },
+                ),
+                titlePositionPercentageOffset: 0.2,
+                getTitle: (index, angle) {
+                  if (index >= categoryLabels.length) return const RadarChartTitle(text: '');
+                  final percentage = values[index];
+                  // Normaliser l'angle entre 0 et 360
+                  final normalizedAngle = angle % 360;
+                  // Déterminer si le texte est en bas du graphique (entre 135° et 225°)
+                  // Dans ce cas, on inverse l'ordre pour que le texte soit lisible
+                  final isBottom = normalizedAngle > 135 && normalizedAngle < 225;
+                  
+                  return RadarChartTitle(
+                    text: isBottom 
+                        ? '${percentage.toStringAsFixed(0)}%\n${categoryLabels[index]}'
+                        : '${categoryLabels[index]}\n${percentage.toStringAsFixed(0)}%',
+                    angle: angle,
+                    positionPercentageOffset: 0.15,
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatCategoryName(String category) {
+    // Utiliser le normaliseur pour obtenir le nom d'affichage français
+    return CategoryNormalizer.getDisplayName(category);
   }
 }
 

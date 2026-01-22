@@ -1,10 +1,10 @@
-1:"Les borders collies sont généralement :":"noir et blanc":"noir et feu":"feu et bleu":"feu":rep1:general:"Les borders collies sont généralement noir et blanc !":1
+1:"Les borders collies sont généralement :":"noir et blanc":"noir et feu":"feu et bleu":"feu":rep1:divers:"Les borders collies sont généralement noir et blanc !":1
 2:"Quelle est la capitale de la France ?":"Lyon":"Marseille":"Paris":"Toulouse":rep3:geographie:"Paris est la capitale de la France depuis le Moyen Âge.":1
-3:"Combien de côtés a un hexagone ?":"4":"5":"6":"8":rep3:mathematiques:"Un hexagone a exactement 6 côtés.":1
+3:"Combien de côtés a un hexagone ?":"4":"5":"6":"8":rep3:sciences:"Un hexagone a exactement 6 côtés.":1
 4:"Quel est le plus grand océan du monde ?":"Océan Atlantique":"Océan Pacifique":"Océan Indien":"Océan Arctique":rep2:geographie:"L'océan Pacifique est le plus grand océan du monde.":1
-5:"Qui a peint la Joconde ?":"Michel-Ange":"Léonard de Vinci":"Raphaël":"Botticelli":rep2:art:"La Joconde a été peinte par Léonard de Vinci au début du XVIe siècle.":2
-6:"Combien de planètes dans notre système solaire ?":"7":"8":"9":"10":rep2:science:"Il y a 8 planètes dans notre système solaire (Pluton n'est plus considérée comme une planète).":1
-7:"Quel est le symbole chimique de l'or ?":"Ag":"Au":"Fe":"Cu":rep2:science:"Au vient du latin 'aurum' qui signifie or.":1
+5:"Qui a peint la Joconde ?":"Michel-Ange":"Léonard de Vinci":"Raphaël":"Botticelli":rep2:cinema:"La Joconde a été peinte par Léonard de Vinci au début du XVIe siècle.":2
+6:"Combien de planètes dans notre système solaire ?":"7":"8":"9":"10":rep2:sciences:"Il y a 8 planètes dans notre système solaire (Pluton n'est plus considérée comme une planète).":1
+7:"Quel est le symbole chimique de l'or ?":"Ag":"Au":"Fe":"Cu":rep2:sciences:"Au vient du latin 'aurum' qui signifie or.":1
 8:"En quelle année a eu lieu la Révolution française ?":"1789":"1799":"1769":"1779":rep1:histoire:"La Révolution française a commencé en 1789 avec la prise de la Bastille.":2
 9:"Quel est le plus grand désert du monde ?":"Sahara":"Gobi":"Antarctique":"Kalahari":rep3:geographie:"L'Antarctique est le plus grand désert du monde (désert froid).":2
-10:"Combien de joueurs dans une équipe de football ?":"9":"10":"11":"12":rep3:sport:"Une équipe de football compte 11 joueurs sur le terrain.":1
+10:"Combien de joueurs dans une équipe de football ?":"9":"10":"11":"12":rep3:sports:"Une équipe de football compte 11 joueurs sur le terrain.":1

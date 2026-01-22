@@ -1,10 +1,10 @@
-1:"Border collies are generally:":"black and white":"black and tan":"tan and blue":"tan":rep1:general:"Border collies are generally black and white!":1
+1:"Border collies are generally:":"black and white":"black and tan":"tan and blue":"tan":rep1:misc:"Border collies are generally black and white!":1
 2:"What is the capital of France?":"Lyon":"Marseille":"Paris":"Toulouse":rep3:geography:"Paris has been the capital of France since the Middle Ages.":1
-3:"How many sides does a hexagon have?":"4":"5":"6":"8":rep3:mathematics:"A hexagon has exactly 6 sides.":1
+3:"How many sides does a hexagon have?":"4":"5":"6":"8":rep3:sciences:"A hexagon has exactly 6 sides.":1
 4:"What is the largest ocean in the world?":"Atlantic Ocean":"Pacific Ocean":"Indian Ocean":"Arctic Ocean":rep2:geography:"The Pacific Ocean is the largest ocean in the world.":1
-5:"Who painted the Mona Lisa?":"Michelangelo":"Leonardo da Vinci":"Raphael":"Botticelli":rep2:art:"The Mona Lisa was painted by Leonardo da Vinci in the early 16th century.":2
-6:"How many planets in our solar system?":"7":"8":"9":"10":rep2:science:"There are 8 planets in our solar system (Pluto is no longer considered a planet).":1
-7:"What is the chemical symbol for gold?":"Ag":"Au":"Fe":"Cu":rep2:science:"Au comes from the Latin 'aurum' which means gold.":1
+5:"Who painted the Mona Lisa?":"Michelangelo":"Leonardo da Vinci":"Raphael":"Botticelli":rep2:cinema:"The Mona Lisa was painted by Leonardo da Vinci in the early 16th century.":2
+6:"How many planets in our solar system?":"7":"8":"9":"10":rep2:sciences:"There are 8 planets in our solar system (Pluto is no longer considered a planet).":1
+7:"What is the chemical symbol for gold?":"Ag":"Au":"Fe":"Cu":rep2:sciences:"Au comes from the Latin 'aurum' which means gold.":1
 8:"In what year did the French Revolution begin?":"1789":"1799":"1769":"1779":rep1:history:"The French Revolution began in 1789 with the storming of the Bastille.":2
 9:"What is the largest desert in the world?":"Sahara":"Gobi":"Antarctica":"Kalahari":rep3:geography:"Antarctica is the largest desert in the world (cold desert).":2
-10:"How many players in a football team?":"9":"10":"11":"12":rep3:sport:"A football team has 11 players on the field.":1
+10:"How many players in a football team?":"9":"10":"11":"12":rep3:sports:"A football team has 11 players on the field.":1
