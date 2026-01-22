@@ -1,13 +1,21 @@
 # Roadmap 
 
+## V1 
+
 - Create quizz (4 proposition, 1 good response, add note...)
 - Score on line (supabase)(for classement)
 - Quizz file (fr_app_content,en_app_content,es_app_content)
 - Profil page (Stats with Category....)
 
-Option (V2):
-- Sound when good response is check 
+- Reselect language in top navbar, and sync on DB supabase
+- Display email and username in profil page
 
+## V2
+
+onboearding
+- improve speed account setup 
+gaming:
+- Sound when good response is check 
 Payment:
 - pub each 15 question or pay 2 euros/By month
 
@@ -17,7 +25,7 @@ The objective of this application is to create an Android and iOS general knowle
 
 ## Storage (Supabase)
 
-The questions/Answers/Score are saved locally
+The questions/Answers/Score are saved locally (???)
 The login and the saving of scores are stored on Supabase
 
 ## Data file Example
