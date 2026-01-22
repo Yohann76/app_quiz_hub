@@ -12,7 +12,7 @@ Game:
 
 App:
 - When language is selected, translate all texte in interface (l18n app)
-- Account must be save in local app
+- Account must be save in local app (cause: different port use)
 
 Data:
 - Verify structure for app_content file

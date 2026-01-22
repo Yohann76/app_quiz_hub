@@ -121,12 +121,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _LanguageSelectorBottomSheet(
+      builder: (bottomSheetContext) => _LanguageSelectorBottomSheet(
         currentLanguage: _currentLanguage,
         onLanguageChanged: (language) async {
-          await _saveLanguage(language);
+          // Fermer le bottom sheet d'abord avec le bon contexte
+          if (bottomSheetContext.mounted) {
+            Navigator.pop(bottomSheetContext);
+          }
+          // Puis sauvegarder la langue
           if (mounted) {
-            Navigator.pop(context);
+            await _saveLanguage(language);
           }
         },
       ),
@@ -1004,7 +1008,7 @@ class _LanguageSelectorBottomSheet extends StatelessWidget {
                 : null,
             onTap: () {
               onLanguageChanged(language);
-              Navigator.pop(context);
+              // Le Navigator.pop est déjà géré dans onLanguageChanged
             },
           )),
           const SizedBox(height: AppConstants.defaultPadding),
