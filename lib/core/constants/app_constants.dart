@@ -5,9 +5,10 @@ class AppConstants {
   
   // Supabase Tables
   static const String usersTable = 'users';
-  static const String userStatsTable = 'user_stats'; // Optionnel - stats calculées depuis user_question_responses
-  static const String quizHistoryTable = 'quiz_history'; // Optionnel - peut être reconstruit depuis user_question_responses
   static const String userQuestionResponsesTable = 'user_question_responses'; // Table principale pour les stats
+  
+  // Note: user_stats et quiz_history ont été supprimées car les stats sont calculées
+  // dynamiquement depuis user_question_responses via QuizService.calculateUserStats()
   
   // Shared Preferences Keys
   static const String selectedLanguageKey = 'selected_language';

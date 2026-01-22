@@ -38,7 +38,7 @@ npx supabase migration new nom_de_la_migration # create migration
 npx supabase db reset # Réinitialiser la base locale et appliquer toutes les migrations
 npx supabase migration up # Appliquer uniquement les nouvelles migrations
 npx supabase link --project-ref wtkoltquvmwbyligkdhn # # Lier votre projet local à Supabase (première fois uniquement)
-npx supabase db push # npx supabase db push
+npx supabase db push # Pousser les migrations vers Supabase (pousse le shemas, supr pas les données)
 npx supabase migration list # # Voir les migrations appliquées
 ```
 

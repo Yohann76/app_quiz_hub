@@ -2,21 +2,33 @@
 
 ## V1 
 
-- Create quizz (4 proposition, 1 good response, add note...)
-- Score on line (supabase)(for classement)
-- Quizz file (fr_app_content,en_app_content,es_app_content)
-- Profil page (Stats with Category....)
+Profil page:
+- Graph with response by category (arraigne graph)
+- Verify bug from count categoru (category in en/fr/es) -> give good stats?
 
+Game: 
+- Quizz file (fr_app_content,en_app_content,es_app_content)(test)
+- Verify structure for app_content file
+
+App: 
 - When language is selected, translate all texte in interface
+- Account must be save in local app
 
 ## V2
 
-onboearding
-- improve speed account setup 
-gaming:
+Onboearding
+- Improve speed account setup 
+Gaming:
 - Sound when good response is check 
 Payment:
-- pub each 15 question or pay 2 euros/By month
+- By default pub each 10 question
+- Pay 2euros per month for not have pub
+
+## Deploy
+
+- Create new branch in database (branch production)
+- Create account for play store and deploy
+- Find 15 user for test this app
 
 ## Define the objective
 
