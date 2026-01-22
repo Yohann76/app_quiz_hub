@@ -22,7 +22,7 @@ The objective of this application is to create an Android and iOS general knowle
 ## Storage (Supabase)
 
 The questions/Answers/Score are saved locally
-The login and the saving of scores are stored on Firebase
+The login and the saving of scores are stored on Supabase
 
 ## Data file Example
 
