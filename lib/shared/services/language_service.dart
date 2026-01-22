@@ -1,4 +1,4 @@
-
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_constants.dart';
 import '../models/language.dart';
@@ -33,9 +33,28 @@ class LanguageService implements ILanguageService {
   @override
   Future<List<Question>> loadQuestionsForLanguage(Language language) async {
     try {
-      // Pour l'instant, on va créer des questions d'exemple
-      // Plus tard, on chargera depuis Supabase ou des fichiers locaux
-      return _generateSampleQuestions(language);
+      // Charger depuis le fichier asset correspondant à la langue
+      final assetPath = 'assets/content/${language.contentFileName}.txt';
+      final String content = await rootBundle.loadString(assetPath);
+      
+      // Parser le contenu ligne par ligne
+      final lines = content.split('\n');
+      final List<Question> questions = [];
+      
+      for (final line in lines) {
+        final trimmedLine = line.trim();
+        if (trimmedLine.isEmpty) continue;
+        
+        try {
+          final question = Question.fromString(trimmedLine);
+          questions.add(question);
+        } catch (e) {
+          // Ignorer les lignes mal formatées
+          print('Erreur lors du parsing de la ligne: $trimmedLine - $e');
+        }
+      }
+      
+      return questions;
     } catch (e) {
       throw Exception('Erreur lors du chargement des questions: $e');
     }

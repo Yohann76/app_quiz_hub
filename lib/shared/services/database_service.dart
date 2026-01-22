@@ -23,13 +23,21 @@ class DatabaseService {
 
   /// Récupérer les statistiques d'un utilisateur
   Future<Map<String, dynamic>?> getUserStats(String userId) async {
-    final response = await _supabase
-        .from(AppConstants.userStatsTable)
-        .select()
-        .eq('user_id', userId)
-        .single();
+    try {
+      final response = await _supabase
+          .from(AppConstants.userStatsTable)
+          .select()
+          .eq('user_id', userId)
+          .maybeSingle();
 
-    return response as Map<String, dynamic>?;
+      if (response == null) {
+        return null;
+      }
+
+      return Map<String, dynamic>.from(response);
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Enregistrer l'historique d'un quiz

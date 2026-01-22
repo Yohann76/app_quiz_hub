@@ -19,8 +19,10 @@ class Question {
 
   factory Question.fromString(String data) {
     final parts = data.split(':');
-    if (parts.length != 9) {
-      throw FormatException('Format de question invalide: $data');
+    // Format: id:"question":"rep1":"rep2":"rep3":"rep4":repX:category:"note":difficulty
+    // Soit 10 parties au total
+    if (parts.length < 10) {
+      throw FormatException('Format de question invalide: $data (${parts.length} parties au lieu de 10)');
     }
 
     return Question(
