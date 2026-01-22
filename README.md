@@ -12,6 +12,13 @@ Project:
 $ cd app_quiz_hub
 ``` 
 
+## configuration
+
+```
+Create your app_quiz_hub/.env.local (from .env.example)
+Create your app_quiz_hub/assets/config.json (from config.json.example)
+```
+
 ## Build app 
 
 ###  build android 

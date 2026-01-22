@@ -48,3 +48,6 @@ app.*.map.json
 .env.*.local
 # Fichiers d'environnement
 .env.local
+
+# Configuration Supabase (ne pas commiter les vraies clés)
+assets/config.json

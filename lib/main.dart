@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,14 +13,44 @@ import 'features/profile/profile_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Charger les variables d'environnement depuis le fichier .env
-  await dotenv.load(fileName: ".env");
+  // Charger la configuration selon la plateforme
+  if (kIsWeb) {
+    // Sur le web, charger depuis config.json dans les assets
+    await SupabaseConfig.loadWebConfig();
+  } else {
+    // Sur Android/iOS/Desktop, charger depuis .env.local ou .env
+    try {
+      await dotenv.load(fileName: ".env.local");
+    } catch (_) {
+      try {
+        await dotenv.load(fileName: ".env");
+      } catch (e) {
+        // Si aucun fichier n'existe, on continue quand même
+        // Les erreurs seront gérées par SupabaseConfig si les valeurs sont manquantes
+        if (kDebugMode) {
+          print('Avertissement: Fichier .env non trouvé. Assurez-vous de créer .env.local avec vos clés Supabase.');
+        }
+      }
+    }
+  }
   
   // Initialiser Supabase
-  await Supabase.initialize(
-    url: SupabaseConfig.supabaseUrl,
-    anonKey: SupabaseConfig.supabaseAnonKey,
-  );
+  try {
+    await Supabase.initialize(
+      url: SupabaseConfig.supabaseUrl,
+      anonKey: SupabaseConfig.supabaseAnonKey,
+    );
+    if (kDebugMode) {
+      print('✅ Supabase initialisé avec succès');
+    }
+  } catch (e) {
+    // Gérer l'erreur d'initialisation Supabase
+    // L'application peut continuer sans Supabase pour le développement local
+    if (kDebugMode) {
+      print('❌ Erreur lors de l\'initialisation Supabase: $e');
+      print('L\'application continue sans Supabase. Configurez vos clés pour activer Supabase.');
+    }
+  }
   
   runApp(const QuizHubApp());
 }
