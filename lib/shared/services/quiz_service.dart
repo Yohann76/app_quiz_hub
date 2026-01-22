@@ -30,17 +30,19 @@ class QuizService {
   }
 
   /// Obtenir les IDs des questions déjà répondues par l'utilisateur
+  /// Note: On ne filtre pas par langue car les IDs sont identiques dans toutes les langues.
+  /// Si une question a été répondue dans une langue, elle est considérée comme répondue dans toutes.
   Future<Set<String>> getAnsweredQuestionIds(Language language) async {
     final user = _authService.currentUser;
     if (user == null) return <String>{};
 
     try {
       final supabase = Supabase.instance.client;
+      // Ne pas filtrer par langue : une question répondue dans une langue est considérée comme répondue dans toutes
       final response = await supabase
           .from('user_question_responses')
           .select('question_id')
-          .eq('user_id', user.id)
-          .eq('language', language.code);
+          .eq('user_id', user.id);
 
       final List<dynamic> data = response;
       return data.map((e) => e['question_id'] as String).toSet();

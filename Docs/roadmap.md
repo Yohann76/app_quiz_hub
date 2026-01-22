@@ -19,7 +19,7 @@ Data:
 - Create parser content CLI dart -> for test all construction content file and detect error before prod
 
 BUG:
-- When language is different, question is again here, respect by id 
+- 
 
 ## V2
 
