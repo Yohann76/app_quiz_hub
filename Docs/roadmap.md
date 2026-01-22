@@ -8,7 +8,6 @@
 - Profil page (Stats with Category....)
 
 - Reselect language in top navbar, and sync on DB supabase
-- Display email and username in profil page
 
 ## V2
 

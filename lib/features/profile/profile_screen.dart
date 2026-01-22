@@ -1,8 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_constants.dart';
+import '../../shared/services/auth_service.dart';
+import '../../shared/services/user_service.dart';
+import '../../shared/services/database_service.dart';
+import '../../shared/models/user_profile.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  UserProfile? _userProfile;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authService = AuthService();
+      final userService = UserService(
+        authService: authService,
+        databaseService: DatabaseService(),
+        prefs: prefs,
+      );
+
+      final profile = await userService.getCurrentProfile();
+      
+      if (mounted) {
+        setState(() {
+          _userProfile = profile;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               children: [
                 // En-tête du profil
-                _ProfileHeader(),
+                _ProfileHeader(userProfile: _userProfile, isLoading: _isLoading),
                 
                 const SizedBox(height: AppConstants.largePadding),
                 
@@ -59,6 +105,14 @@ class ProfileScreen extends StatelessWidget {
 }
 
 class _ProfileHeader extends StatelessWidget {
+  final UserProfile? userProfile;
+  final bool isLoading;
+
+  const _ProfileHeader({
+    required this.userProfile,
+    required this.isLoading,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -90,22 +144,58 @@ class _ProfileHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Quiz Master',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                if (isLoading)
+                  const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                else ...[
+                  // Pseudo
+                  Text(
+                    userProfile?.username ?? 'Utilisateur',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: AppConstants.smallPadding),
-                Text(
-                  'Niveau: Débutant',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 16,
-                  ),
-                ),
+                  const SizedBox(height: AppConstants.smallPadding),
+                  // Email
+                  if (userProfile?.email != null)
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.email,
+                          size: 16,
+                          color: Colors.white70,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            userProfile!.email!,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontSize: 14,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Text(
+                      'Email non disponible',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                ],
               ],
             ),
           ),
