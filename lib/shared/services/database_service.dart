@@ -77,13 +77,22 @@ class DatabaseService {
 
   /// Récupérer le profil d'un utilisateur
   Future<Map<String, dynamic>?> getUserProfile(String userId) async {
-    final response = await _supabase
-        .from(AppConstants.usersTable)
-        .select()
-        .eq('id', userId)
-        .single();
+    try {
+      final response = await _supabase
+          .from(AppConstants.usersTable)
+          .select()
+          .eq('id', userId)
+          .maybeSingle();
 
-    return response as Map<String, dynamic>?;
+      if (response == null) {
+        return null;
+      }
+
+      return Map<String, dynamic>.from(response);
+    } catch (e) {
+      // Si le profil n'existe pas, retourner null
+      return null;
+    }
   }
 }
 

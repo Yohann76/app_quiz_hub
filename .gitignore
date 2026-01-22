@@ -51,3 +51,9 @@ app.*.map.json
 
 # Configuration Supabase (ne pas commiter les vraies clés)
 assets/config.json
+
+# Supabase local (garder les migrations dans Git)
+supabase/.branches
+supabase/.temp
+supabase/.seed
+supabase/.volumes

@@ -6,9 +6,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/app_constants.dart';
 import 'core/config/supabase_config.dart';
 import 'features/onboarding/language_selection_screen.dart';
+import 'features/onboarding/onboarding_screen.dart';
+import 'features/auth/auth_screen.dart';
 import 'features/quiz/home_screen.dart';
 import 'features/quiz/quiz_screen.dart';
 import 'features/profile/profile_screen.dart';
+import 'shared/services/auth_service.dart';
+import 'shared/services/user_service.dart';
+import 'shared/services/database_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -86,6 +91,8 @@ class QuizHubApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
       routes: {
+        '/auth': (context) => const AuthScreen(),
+        '/onboarding': (context) => const OnboardingScreen(),
         '/home': (context) => const HomeScreen(),
         '/language': (context) => const LanguageSelectionScreen(),
         '/quiz': (context) => const QuizScreen(),
@@ -144,24 +151,75 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _checkFirstLaunch() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final isFirstLaunch = prefs.getBool(AppConstants.isFirstLaunchKey) ?? true;
-      
       // Attendre un peu pour l'animation
       await Future.delayed(const Duration(seconds: 2));
       
-      if (mounted) {
-        if (isFirstLaunch) {
-          // Première fois : aller à la sélection de langue
-          Navigator.of(context).pushReplacementNamed('/language');
-        } else {
-          // Pas la première fois : aller à l'écran principal
-          Navigator.of(context).pushReplacementNamed('/home');
+      if (!mounted) return;
+
+      final authService = AuthService();
+      
+      if (kDebugMode) {
+        print('🔍 Vérification de l\'authentification...');
+        print('Utilisateur connecté: ${authService.isAuthenticated}');
+        if (authService.currentUser != null) {
+          print('User ID: ${authService.currentUser!.id}');
+          print('Email: ${authService.currentUser!.email}');
         }
       }
-    } catch (e) {
+      
+      // Vérifier si l'utilisateur est connecté
+      if (!authService.isAuthenticated) {
+        // Pas connecté : aller à l'authentification
+        if (kDebugMode) {
+          print('➡️ Redirection vers /auth (non authentifié)');
+        }
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/auth');
+        }
+        return;
+      }
+
+      // Utilisateur connecté : vérifier si le profil est complet
+      if (kDebugMode) {
+        print('🔍 Vérification du profil utilisateur...');
+      }
+      
+      final prefs = await SharedPreferences.getInstance();
+      final userService = UserService(
+        authService: authService,
+        databaseService: DatabaseService(),
+        prefs: prefs,
+      );
+
+      final isComplete = await userService.isProfileComplete();
+      
+      if (kDebugMode) {
+        print('Profil complet: $isComplete');
+      }
+      
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/language');
+        if (isComplete) {
+          // Profil complet : aller à l'écran principal
+          if (kDebugMode) {
+            print('➡️ Redirection vers /home (profil complet)');
+          }
+          Navigator.of(context).pushReplacementNamed('/home');
+        } else {
+          // Profil incomplet : aller à l'onboarding
+          if (kDebugMode) {
+            print('➡️ Redirection vers /onboarding (profil incomplet)');
+          }
+          Navigator.of(context).pushReplacementNamed('/onboarding');
+        }
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('❌ Erreur lors de la vérification: $e');
+        print('Stack trace: $stackTrace');
+      }
+      if (mounted) {
+        // En cas d'erreur, aller à l'authentification
+        Navigator.of(context).pushReplacementNamed('/auth');
       }
     }
   }

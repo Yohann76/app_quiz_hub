@@ -1,9 +1,5 @@
 # Roadmap 
 
-- Install supabase 
-- User Connexion (with supabase)
-- Configure supabase
-- Onboarding (Choice language, Choice name)(Setting in profil)
 - Create quizz (4 proposition, 1 good response, add note...)
 - Score on line (supabase)(for classement)
 - Quizz file (fr_app_content,en_app_content,es_app_content)
@@ -13,7 +9,7 @@ Option (V2):
 - Sound when good response is check 
 
 Payment:
-- pub each 15 question or pay 5 euros
+- pub each 15 question or pay 2 euros/By month
 
 ## Define the objective
 

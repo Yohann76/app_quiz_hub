@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Service d'authentification utilisant Supabase
@@ -39,12 +40,31 @@ class AuthService {
     );
   }
 
-  /// Connexion avec GitHub (OAuth)
+  /// Connexion avec Google (OAuth)
+  Future<bool> signInWithGoogle() async {
+    try {
+      await _supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: kIsWeb 
+            ? '${Uri.base.origin}/auth/callback'
+            : 'io.supabase.quizhub://login-callback',
+        authScreenLaunchMode: LaunchMode.externalApplication,
+      );
+      return true;
+    } catch (e) {
+      throw Exception('Erreur lors de la connexion avec Google: $e');
+    }
+  }
+
+  /// Connexion avec GitHub (OAuth) - gardé pour compatibilité
   Future<bool> signInWithGitHub() async {
     try {
       await _supabase.auth.signInWithOAuth(
         OAuthProvider.github,
-        redirectTo: 'io.supabase.quizhub://login-callback',
+        redirectTo: kIsWeb 
+            ? '${Uri.base.origin}/auth/callback'
+            : 'io.supabase.quizhub://login-callback',
+        authScreenLaunchMode: LaunchMode.externalApplication,
       );
       return true;
     } catch (e) {
