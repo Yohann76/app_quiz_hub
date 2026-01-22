@@ -8,18 +8,24 @@ Profil page:
 
 Game: 
 - Quizz file (fr_app_content,en_app_content,es_app_content)(test)
-- Verify structure for app_content file
+- Sound when good response is check 
 
-App: 
-- When language is selected, translate all texte in interface
+App:
+- When language is selected, translate all texte in interface (l18n app)
 - Account must be save in local app
+
+Data:
+- Verify structure for app_content file
+- Create parser content CLI dart -> for test all construction content file and detect error before prod
+
+BUG:
+- When language is different, question is again here, respect by id 
 
 ## V2
 
 Onboearding
 - Improve speed account setup 
-Gaming:
-- Sound when good response is check 
+
 Payment:
 - By default pub each 10 question
 - Pay 2euros per month for not have pub

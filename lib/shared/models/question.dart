@@ -18,27 +18,62 @@ class Question {
   });
 
   factory Question.fromString(String data) {
-    final parts = data.split(':');
     // Format: id:"question":"rep1":"rep2":"rep3":"rep4":repX:category:"note":difficulty
-    // Soit 10 parties au total
+    // Parser qui respecte les guillemets (ne split pas à l'intérieur des guillemets)
+    final parts = _parseWithQuotes(data);
+    
     if (parts.length < 10) {
       throw FormatException('Format de question invalide: $data (${parts.length} parties au lieu de 10)');
     }
 
     return Question(
       id: parts[0].trim(),
-      questionText: parts[1].trim().replaceAll('"', ''),
+      questionText: _removeQuotes(parts[1]),
       responses: [
-        parts[2].trim().replaceAll('"', ''),
-        parts[3].trim().replaceAll('"', ''),
-        parts[4].trim().replaceAll('"', ''),
-        parts[5].trim().replaceAll('"', ''),
+        _removeQuotes(parts[2]),
+        _removeQuotes(parts[3]),
+        _removeQuotes(parts[4]),
+        _removeQuotes(parts[5]),
       ],
       correctResponseIndex: _parseCorrectResponse(parts[6]),
-      category: parts[7].trim().replaceAll('"', ''),
-      note: parts[8].trim().replaceAll('"', ''),
+      category: _removeQuotes(parts[7]),
+      note: _removeQuotes(parts[8]),
       difficulty: int.tryParse(parts[9].trim()) ?? 1,
     );
+  }
+
+  /// Parser qui respecte les guillemets (ne split pas à l'intérieur des guillemets)
+  static List<String> _parseWithQuotes(String data) {
+    final List<String> parts = [];
+    final StringBuffer current = StringBuffer();
+    bool inQuotes = false;
+    
+    for (int i = 0; i < data.length; i++) {
+      final char = data[i];
+      
+      if (char == '"') {
+        inQuotes = !inQuotes;
+        current.write(char);
+      } else if (char == ':' && !inQuotes) {
+        // On est en dehors des guillemets, on peut splitter
+        parts.add(current.toString());
+        current.clear();
+      } else {
+        current.write(char);
+      }
+    }
+    
+    // Ajouter la dernière partie
+    if (current.isNotEmpty) {
+      parts.add(current.toString());
+    }
+    
+    return parts;
+  }
+
+  /// Retirer les guillemets d'une chaîne
+  static String _removeQuotes(String str) {
+    return str.trim().replaceAll('"', '');
   }
 
   static int _parseCorrectResponse(String response) {
