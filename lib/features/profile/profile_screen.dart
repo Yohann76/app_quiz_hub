@@ -178,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: AppConstants.defaultPadding),
                 
                 // Classement
-                _LeaderboardCard(),
+                _LeaderboardCard(userProfile: _userProfile),
                 
                 const SizedBox(height: AppConstants.defaultPadding),
                 
@@ -189,6 +189,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 // Points par catégorie
                 _CategoryStatsCard(stats: _userStats),
+                
+                const SizedBox(height: AppConstants.largePadding),
+                
+                // Bouton de déconnexion
+                const _LogoutButton(),
+                
+                const SizedBox(height: AppConstants.defaultPadding),
               ],
             ),
           ),
@@ -788,7 +795,65 @@ class _CategoryProgress extends StatelessWidget {
   }
 }
 
-class _LeaderboardCard extends StatelessWidget {
+class _LeaderboardCard extends StatefulWidget {
+  final UserProfile? userProfile;
+
+  const _LeaderboardCard({this.userProfile});
+
+  @override
+  State<_LeaderboardCard> createState() => _LeaderboardCardState();
+}
+
+class _LeaderboardCardState extends State<_LeaderboardCard> {
+  Map<String, dynamic>? _rankingData;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRanking();
+  }
+
+  Future<void> _loadRanking() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authService = AuthService();
+      
+      if (!authService.isAuthenticated) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final languageService = LanguageService(prefs);
+      final quizService = QuizService(
+        languageService: languageService,
+        databaseService: DatabaseService(),
+        authService: authService,
+        prefs: prefs,
+      );
+
+      final ranking = await quizService.getUserRanking();
+      
+      if (mounted) {
+        setState(() {
+          _rankingData = ranking;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Erreur lors du chargement du classement: $e');
+      }
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -819,35 +884,279 @@ class _LeaderboardCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppConstants.defaultPadding),
-          const Center(
-            child: Column(
-              children: [
-                Icon(
-                  Icons.leaderboard,
-                  size: 60,
-                  color: Colors.white54,
+          if (_isLoading)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(AppConstants.defaultPadding),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
-                SizedBox(height: AppConstants.smallPadding),
-                Text(
-                  'Aucun classement disponible',
-                  style: TextStyle(
+              ),
+            )
+          else if (_rankingData == null || _rankingData!['total_players'] == 0)
+            const Center(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.leaderboard,
+                    size: 60,
                     color: Colors.white54,
-                    fontSize: 16,
                   ),
-                ),
-                Text(
-                  'Jouez pour apparaître dans le classement !',
-                  style: TextStyle(
-                    color: Colors.white38,
-                    fontSize: 14,
+                  SizedBox(height: AppConstants.smallPadding),
+                  Text(
+                    'Aucun classement disponible',
+                    style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-              ],
+                  Text(
+                    'Jouez pour apparaître dans le classement !',
+                    style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            _buildRankingContent(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRankingContent() {
+    final position = _rankingData!['position'] as int? ?? 0;
+    final totalPlayers = _rankingData!['total_players'] as int? ?? 0;
+    final score = _rankingData!['score'] as double? ?? 0.0;
+    final isTop10 = _rankingData!['is_top_10_percent'] as bool? ?? false;
+    final isTop20 = _rankingData!['is_top_20_percent'] as bool? ?? false;
+    final isTop50 = _rankingData!['is_top_50_percent'] as bool? ?? false;
+
+    // Déterminer le badge et la couleur
+    String badgeText = '';
+    Color badgeColor = Colors.grey;
+    IconData badgeIcon = Icons.emoji_events;
+
+    if (isTop10) {
+      badgeText = 'Top 10%';
+      badgeColor = Colors.amber;
+      badgeIcon = Icons.emoji_events;
+    } else if (isTop20) {
+      badgeText = 'Top 20%';
+      badgeColor = Colors.orange;
+      badgeIcon = Icons.stars;
+    } else if (isTop50) {
+      badgeText = 'Top 50%';
+      badgeColor = Colors.blue;
+      badgeIcon = Icons.workspace_premium;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Position et score principal
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Position',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: AppConstants.smallPadding),
+                  Text(
+                    '$position / $totalPlayers',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
+            if (badgeText.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppConstants.defaultPadding,
+                  vertical: AppConstants.smallPadding,
+                ),
+                decoration: BoxDecoration(
+                  color: badgeColor.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  border: Border.all(
+                    color: badgeColor,
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      badgeIcon,
+                      color: badgeColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: AppConstants.smallPadding),
+                    Text(
+                      badgeText,
+                      style: TextStyle(
+                        color: badgeColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppConstants.defaultPadding),
+        // Score moyen
+        Container(
+          padding: const EdgeInsets.all(AppConstants.defaultPadding),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    '${score.toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: AppConstants.smallPadding),
+                  Text(
+                    'Score moyen',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: Colors.white.withValues(alpha: 0.3),
+              ),
+              Column(
+                children: [
+                  Text(
+                    '${((totalPlayers - position + 1) / totalPlayers * 100).toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: AppConstants.smallPadding),
+                  Text(
+                    'Mieux que',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LogoutButton extends StatelessWidget {
+  const _LogoutButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding),
+      child: ElevatedButton.icon(
+        onPressed: () => _showLogoutDialog(context),
+        icon: const Icon(Icons.logout),
+        label: const Text('Se déconnecter'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red.withValues(alpha: 0.8),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.defaultPadding,
+            vertical: AppConstants.defaultPadding,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Déconnexion'),
+        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('Déconnexion'),
           ),
         ],
       ),
     );
+
+    if (shouldLogout != true || !context.mounted) return;
+
+    try {
+      final authService = AuthService();
+      await authService.signOut();
+
+      if (context.mounted) {
+        // Rediriger vers l'écran d'authentification
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/auth',
+          (route) => false, // Supprimer toutes les routes précédentes
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de la déconnexion: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
 

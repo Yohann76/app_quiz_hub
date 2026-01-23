@@ -54,10 +54,38 @@ class _AuthScreenState extends State<AuthScreen> {
         );
       } else {
         // Inscription
-        await _authService.signUpWithEmail(
+        final response = await _authService.signUpWithEmail(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
+        
+        // Vérifier si l'utilisateur est connecté après l'inscription
+        // Si la vérification d'email est activée, l'utilisateur ne sera pas connecté immédiatement
+        if (!_authService.isAuthenticated) {
+          // L'utilisateur doit vérifier son email
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _errorMessage = null;
+            });
+            // Afficher un message informatif
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Un email de confirmation a été envoyé. Veuillez vérifier votre boîte mail et cliquer sur le lien pour activer votre compte.',
+                ),
+                backgroundColor: Colors.blue,
+                duration: Duration(seconds: 5),
+              ),
+            );
+            return; // Ne pas continuer le processus
+          }
+        }
+      }
+
+      // Vérifier que l'utilisateur est bien connecté avant de continuer
+      if (!_authService.isAuthenticated) {
+        throw Exception('Erreur d\'authentification. Veuillez réessayer.');
       }
 
       // Vérifier si le profil est complet

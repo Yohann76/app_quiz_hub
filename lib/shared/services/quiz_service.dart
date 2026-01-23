@@ -196,5 +196,128 @@ class QuizService {
   Future<Map<String, dynamic>> getUserStats({Language? language}) async {
     return await calculateUserStats(language: language);
   }
+
+  /// Calculer le classement de l'utilisateur
+  /// Retourne: position, total joueurs, top 10%, top 20%, top 50%
+  Future<Map<String, dynamic>> getUserRanking() async {
+    final user = _authService.currentUser;
+    if (user == null) {
+      return {
+        'position': 0,
+        'total_players': 0,
+        'score': 0.0,
+        'is_top_10_percent': false,
+        'is_top_20_percent': false,
+        'is_top_50_percent': false,
+      };
+    }
+
+    try {
+      final supabase = Supabase.instance.client;
+      
+      // Utiliser une fonction SQL pour calculer les statistiques agrégées
+      // Cette fonction sera créée via une migration SQL
+      final response = await supabase.rpc('get_user_ranking', params: {
+        'p_user_id': user.id,
+      });
+
+      if (response == null) {
+        // Si la fonction n'existe pas encore, calculer manuellement
+        return await _calculateRankingManually(user.id);
+      }
+
+      return Map<String, dynamic>.from(response);
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️ Erreur lors du calcul du classement (fonction SQL): $e');
+        print('📊 Tentative de calcul manuel...');
+      }
+      // Fallback: calcul manuel si la fonction SQL n'existe pas
+      return await _calculateRankingManually(user.id);
+    }
+  }
+
+  /// Calcul manuel du classement (fallback si la fonction SQL n'existe pas)
+  Future<Map<String, dynamic>> _calculateRankingManually(String userId) async {
+    try {
+      final supabase = Supabase.instance.client;
+      
+      // Récupérer toutes les réponses de tous les utilisateurs
+      // Note: Cela nécessite que les politiques RLS permettent la lecture agrégée
+      // Pour l'instant, on utilise une requête directe qui peut échouer si RLS bloque
+      final response = await supabase
+          .from('user_question_responses')
+          .select('user_id, is_correct');
+      
+      final List<dynamic> allResponses = response;
+      
+      // Calculer les statistiques par utilisateur
+      final Map<String, Map<String, int>> userStats = {};
+      
+      for (final response in allResponses) {
+        final uid = response['user_id'] as String;
+        final isCorrect = response['is_correct'] as bool? ?? false;
+        
+        if (!userStats.containsKey(uid)) {
+          userStats[uid] = {'total': 0, 'correct': 0};
+        }
+        
+        userStats[uid]!['total'] = (userStats[uid]!['total'] ?? 0) + 1;
+        if (isCorrect) {
+          userStats[uid]!['correct'] = (userStats[uid]!['correct'] ?? 0) + 1;
+        }
+      }
+      
+      // Calculer le score moyen pour chaque utilisateur
+      final List<MapEntry<String, double>> userScores = [];
+      for (final entry in userStats.entries) {
+        final total = entry.value['total'] ?? 0;
+        final correct = entry.value['correct'] ?? 0;
+        final score = total > 0 ? (correct / total * 100) : 0.0;
+        userScores.add(MapEntry(entry.key, score));
+      }
+      
+      // Trier par score décroissant
+      userScores.sort((a, b) => b.value.compareTo(a.value));
+      
+      // Trouver la position de l'utilisateur
+      int position = 0;
+      double userScore = 0.0;
+      for (int i = 0; i < userScores.length; i++) {
+        if (userScores[i].key == userId) {
+          position = i + 1;
+          userScore = userScores[i].value;
+          break;
+        }
+      }
+      
+      final totalPlayers = userScores.length;
+      final top10Percent = totalPlayers > 0 && position <= (totalPlayers * 0.1).ceil();
+      final top20Percent = totalPlayers > 0 && position <= (totalPlayers * 0.2).ceil();
+      final top50Percent = totalPlayers > 0 && position <= (totalPlayers * 0.5).ceil();
+      
+      return {
+        'position': position,
+        'total_players': totalPlayers,
+        'score': userScore,
+        'is_top_10_percent': top10Percent,
+        'is_top_20_percent': top20Percent,
+        'is_top_50_percent': top50Percent,
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Erreur lors du calcul manuel du classement: $e');
+      }
+      // Retourner des valeurs par défaut en cas d'erreur
+      return {
+        'position': 0,
+        'total_players': 0,
+        'score': 0.0,
+        'is_top_10_percent': false,
+        'is_top_20_percent': false,
+        'is_top_50_percent': false,
+      };
+    }
+  }
 }
 
