@@ -309,7 +309,7 @@ class _QuickStatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final totalCorrect = stats?['total_correct_answers'] as int? ?? 0;
-    final totalAnswered = stats?['total_questions'] as int? ?? 0;
+    final uniqueAnswered = stats?['unique_questions_answered'] as int? ?? 0;
     final accuracy = stats?['average_score'] as double? ?? 0.0;
     final totalScore = stats?['total_score'] as int? ?? 0;
 
@@ -337,7 +337,7 @@ class _QuickStatsRow extends StatelessWidget {
           ),
           _StatItem(
             icon: Icons.quiz_outlined,
-            value: '$totalAnswered/$totalAvailable',
+            value: '$uniqueAnswered/$totalAvailable',
             label: 'Questions',
             color: AppConstants.primaryBlue,
           ),

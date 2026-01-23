@@ -138,17 +138,15 @@ class QuizService {
       final response = await query;
       final List<dynamic> data = response;
       
-      // Debug: afficher le nombre de réponses récupérées
-      if (kDebugMode) {
-        print('📊 calculateUserStats: ${data.length} réponses récupérées depuis Supabase');
-        if (data.isNotEmpty) {
-          print('📊 Première réponse: ${data.first}');
-        }
-      }
-      
-      final totalQuestions = data.length;
+      // Calculer les statistiques
+      final totalResponses = data.length;
       final totalCorrect = data.where((r) => r['is_correct'] == true).length;
-      final averageScore = totalQuestions > 0 ? (totalCorrect / totalQuestions * 100) : 0.0;
+      
+      // Calculer le nombre de questions uniques répondues
+      final Set<String> uniqueQuestionIds = data.map((r) => r['question_id'] as String).toSet();
+      final uniqueQuestionsAnswered = uniqueQuestionIds.length;
+      
+      final averageScore = totalResponses > 0 ? (totalCorrect / totalResponses * 100) : 0.0;
       
       // Calculer le score total : 5 points par bonne réponse
       const pointsPerCorrectAnswer = 5;
@@ -163,10 +161,6 @@ class QuizService {
         // Normaliser la catégorie vers le français
         final category = CategoryNormalizer.normalize(rawCategory);
         
-        if (kDebugMode && rawCategory != category) {
-          print('📊 Catégorie normalisée: "$rawCategory" → "$category"');
-        }
-        
         totalByCategory[category] = (totalByCategory[category] ?? 0) + 1;
         if (response['is_correct'] == true) {
           correctByCategory[category] = (correctByCategory[category] ?? 0) + 1;
@@ -174,15 +168,15 @@ class QuizService {
       }
       
       if (kDebugMode) {
-        print('📊 Stats calculées: $totalQuestions questions, $totalCorrect correctes, score total: $totalScore');
-        print('📊 Catégories: $totalByCategory');
+        print('📊 Stats calculées: $totalResponses réponses, $uniqueQuestionsAnswered questions uniques, $totalCorrect correctes, score total: $totalScore');
       }
       
       return {
-        'total_questions': totalQuestions,
+        'total_questions': totalResponses, // Nombre total de réponses (lignes en DB)
+        'unique_questions_answered': uniqueQuestionsAnswered, // Nombre de questions uniques
         'total_correct_answers': totalCorrect,
         'average_score': averageScore,
-        'total_score': totalScore, // Score total : 5 points par bonne réponse
+        'total_score': totalScore,
         'total_by_category': totalByCategory,
         'total_correct_by_category': correctByCategory,
       };
