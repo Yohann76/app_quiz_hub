@@ -316,6 +316,7 @@ class _GlobalStatsCard extends StatelessWidget {
     final totalCorrect = stats?['total_correct_answers'] as int? ?? 0;
     final totalQuestions = stats?['total_questions'] as int? ?? 0;
     final averageScore = stats?['average_score'] as double? ?? 0.0;
+    final totalScore = stats?['total_score'] as int? ?? 0; // Score total : 5 points par bonne réponse
 
     return Container(
       padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -368,7 +369,7 @@ class _GlobalStatsCard extends StatelessWidget {
               ),
               _StatItem(
                 icon: Icons.star,
-                value: totalCorrect.toString(),
+                value: totalScore.toString(),
                 label: 'Score',
                 color: Colors.yellow,
               ),

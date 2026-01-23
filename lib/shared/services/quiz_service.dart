@@ -115,6 +115,7 @@ class QuizService {
         'total_questions': 0,
         'total_correct_answers': 0,
         'average_score': 0.0,
+        'total_score': 0,
         'total_by_category': <String, int>{},
         'total_correct_by_category': <String, int>{},
       };
@@ -149,6 +150,10 @@ class QuizService {
       final totalCorrect = data.where((r) => r['is_correct'] == true).length;
       final averageScore = totalQuestions > 0 ? (totalCorrect / totalQuestions * 100) : 0.0;
       
+      // Calculer le score total : 5 points par bonne réponse
+      const pointsPerCorrectAnswer = 5;
+      final totalScore = totalCorrect * pointsPerCorrectAnswer;
+      
       // Calculer par catégorie (normalisées vers le français)
       final Map<String, int> totalByCategory = {};
       final Map<String, int> correctByCategory = {};
@@ -169,7 +174,7 @@ class QuizService {
       }
       
       if (kDebugMode) {
-        print('📊 Stats calculées: $totalQuestions questions, $totalCorrect correctes');
+        print('📊 Stats calculées: $totalQuestions questions, $totalCorrect correctes, score total: $totalScore');
         print('📊 Catégories: $totalByCategory');
       }
       
@@ -177,6 +182,7 @@ class QuizService {
         'total_questions': totalQuestions,
         'total_correct_answers': totalCorrect,
         'average_score': averageScore,
+        'total_score': totalScore, // Score total : 5 points par bonne réponse
         'total_by_category': totalByCategory,
         'total_correct_by_category': correctByCategory,
       };
@@ -186,6 +192,7 @@ class QuizService {
         'total_questions': 0,
         'total_correct_answers': 0,
         'average_score': 0.0,
+        'total_score': 0,
         'total_by_category': <String, int>{},
         'total_correct_by_category': <String, int>{},
       };

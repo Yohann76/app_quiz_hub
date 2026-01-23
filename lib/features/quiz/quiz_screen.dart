@@ -25,6 +25,7 @@ class _QuizScreenState extends State<QuizScreen> {
   bool _isSaving = false;
   int _correctAnswers = 0;
   int _totalAnswered = 0;
+  int _sessionScore = 0; // Score de la session : 5 points par bonne réponse
 
   late QuizService _quizService;
 
@@ -118,6 +119,7 @@ class _QuizScreenState extends State<QuizScreen> {
     final isCorrect = _currentQuestion!.isCorrect(index);
     if (isCorrect) {
       _correctAnswers++;
+      _sessionScore += 5; // 5 points par bonne réponse
     }
     _totalAnswered++;
 
@@ -215,9 +217,24 @@ class _QuizScreenState extends State<QuizScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Center(
-              child: Text(
-                'Score: $_correctAnswers/$_totalAnswered',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Score: $_sessionScore',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    '$_correctAnswers/$_totalAnswered',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
