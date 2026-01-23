@@ -2,9 +2,6 @@
 
 ## V1 
 
-Game: 
-- Tap for skip response (if no tap for 10 seconds, skip explication and next question)
-
 App:
 - Account must be save in local app (cause: different port use)
 
