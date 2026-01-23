@@ -124,11 +124,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (bottomSheetContext) => _LanguageSelectorBottomSheet(
         currentLanguage: _currentLanguage,
         onLanguageChanged: (language) async {
-          // Fermer le bottom sheet d'abord avec le bon contexte
           if (bottomSheetContext.mounted) {
             Navigator.pop(bottomSheetContext);
           }
-          // Puis sauvegarder la langue
           if (mounted) {
             await _saveLanguage(language);
           }
@@ -140,66 +138,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppConstants.backgroundLight,
       appBar: AppBar(
-        title: const Text('Profil'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('MON PROFIL', style: TextStyle(letterSpacing: 2)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.language),
+            icon: const Icon(Icons.language_rounded),
             onPressed: _showLanguageSelector,
             tooltip: 'Changer de langue',
           ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: Column(
-              children: [
-                // En-tête du profil
-                _ProfileHeader(userProfile: _userProfile, isLoading: _isLoading),
-                
-                const SizedBox(height: AppConstants.largePadding),
-                
-                // Statistiques globales
-                _GlobalStatsCard(stats: _userStats),
-                
-                const SizedBox(height: AppConstants.defaultPadding),
-                
-                // Classement
-                _LeaderboardCard(userProfile: _userProfile),
-                
-                const SizedBox(height: AppConstants.defaultPadding),
-                
-                // Graphique en forme d'araignée par catégorie
-                _CategoryRadarChartCard(stats: _userStats),
-                
-                const SizedBox(height: AppConstants.defaultPadding),
-                
-                // Points par catégorie
-                _CategoryStatsCard(stats: _userStats),
-                
-                const SizedBox(height: AppConstants.largePadding),
-                
-                // Bouton de déconnexion
-                const _LogoutButton(),
-                
-                const SizedBox(height: AppConstants.defaultPadding),
-              ],
+      body: SafeArea(
+        child: _isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(AppConstants.largePadding),
+              child: Column(
+                children: [
+                  // En-tête du profil
+                  _ProfileHeader(userProfile: _userProfile),
+                  
+                  const SizedBox(height: AppConstants.largePadding * 1.5),
+                  
+                  // Statistiques globales
+                  _GlobalStatsCard(stats: _userStats),
+                  
+                  const SizedBox(height: AppConstants.largePadding),
+                  
+                  // Classement
+                  _LeaderboardCard(userProfile: _userProfile),
+                  
+                  const SizedBox(height: AppConstants.largePadding),
+                  
+                  // Graphique en forme d'araignée par catégorie
+                  _CategoryRadarChartCard(stats: _userStats),
+                  
+                  const SizedBox(height: AppConstants.largePadding),
+                  
+                  // Points par catégorie
+                  _CategoryStatsCard(stats: _userStats),
+                  
+                  const SizedBox(height: AppConstants.largePadding * 2),
+                  
+                  // Bouton de déconnexion
+                  const _LogoutButton(),
+                  
+                  const SizedBox(height: AppConstants.largePadding),
+                ],
+              ),
             ),
-          ),
-        ),
       ),
     );
   }
@@ -207,101 +195,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 class _ProfileHeader extends StatelessWidget {
   final UserProfile? userProfile;
-  final bool isLoading;
 
-  const _ProfileHeader({
-    required this.userProfile,
-    required this.isLoading,
-  });
+  const _ProfileHeader({required this.userProfile});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.3),
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: AppConstants.primaryBlue, width: 3),
+          ),
+          child: CircleAvatar(
+            radius: 50,
+            backgroundColor: AppConstants.primaryBlue.withOpacity(0.1),
+            child: const Icon(Icons.person_rounded, size: 60, color: AppConstants.primaryBlue),
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: const Icon(
-              Icons.person,
-              size: 40,
-              color: Colors.white,
+        const SizedBox(height: 16),
+        Text(
+          userProfile?.username ?? 'Utilisateur',
+          style: const TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w900,
+            color: Colors.black87,
+            letterSpacing: 1,
+          ),
+        ),
+        if (userProfile?.email != null)
+          Text(
+            userProfile!.email!,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(width: AppConstants.defaultPadding),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isLoading)
-                  const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                else ...[
-                  // Pseudo
-                  Text(
-                    userProfile?.username ?? 'Utilisateur',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.smallPadding),
-                  // Email
-                  if (userProfile?.email != null)
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.email,
-                          size: 16,
-                          color: Colors.white70,
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            userProfile!.email!,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontSize: 14,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    )
-                  else
-                    Text(
-                      'Email non disponible',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 14,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -316,482 +248,59 @@ class _GlobalStatsCard extends StatelessWidget {
     final totalCorrect = stats?['total_correct_answers'] as int? ?? 0;
     final totalQuestions = stats?['total_questions'] as int? ?? 0;
     final averageScore = stats?['average_score'] as double? ?? 0.0;
-    final totalScore = stats?['total_score'] as int? ?? 0; // Score total : 5 points par bonne réponse
+    final totalScore = stats?['total_score'] as int? ?? 0;
 
     return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
+      padding: const EdgeInsets.all(AppConstants.largePadding),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.analytics,
-                color: Colors.white,
-                size: 24,
-              ),
-              const SizedBox(width: AppConstants.smallPadding),
-              const Text(
-                'Statistiques Globales',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+          const Text(
+            'STATISTIQUES',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: AppConstants.primaryBlue,
+              letterSpacing: 1.5,
+            ),
           ),
-          const SizedBox(height: AppConstants.defaultPadding),
+          const SizedBox(height: AppConstants.largePadding),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _StatItem(
-                icon: Icons.check_circle,
+                icon: Icons.check_circle_outline_rounded,
                 value: totalCorrect.toString(),
                 label: 'Correctes',
                 color: Colors.green,
               ),
               _StatItem(
-                icon: Icons.quiz,
-                value: totalQuestions.toString(),
-                label: 'Total',
-                color: Colors.blue,
-              ),
-              _StatItem(
-                icon: Icons.trending_up,
-                value: '${averageScore.toStringAsFixed(1)}%',
+                icon: Icons.bolt_rounded,
+                value: '${averageScore.toStringAsFixed(0)}%',
                 label: 'Précision',
-                color: Colors.orange,
+                color: AppConstants.primaryOrange,
               ),
               _StatItem(
-                icon: Icons.star,
+                icon: Icons.stars_rounded,
                 value: totalScore.toString(),
                 label: 'Score',
-                color: Colors.yellow,
+                color: AppConstants.primaryBlue,
               ),
             ],
           ),
         ],
       ),
-    );
-  }
-}
-
-class _CategoryStatsCard extends StatelessWidget {
-  final Map<String, dynamic>? stats;
-
-  const _CategoryStatsCard({this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    final totalByCategory = stats?['total_by_category'] as Map<String, dynamic>? ?? {};
-    final correctByCategory = stats?['total_correct_by_category'] as Map<String, dynamic>? ?? {};
-
-    // Couleurs par catégorie
-    final categoryColors = {
-      'general': Colors.blue,
-      'geographie': Colors.green,
-      'geography': Colors.green,
-      'geografia': Colors.green,
-      'histoire': Colors.orange,
-      'history': Colors.orange,
-      'historia': Colors.orange,
-      'science': Colors.purple,
-      'sciences': Colors.purple,
-      'ciencia': Colors.purple,
-      'mathematiques': Colors.red,
-      'mathematics': Colors.red,
-      'matematicas': Colors.red,
-    };
-
-    final categories = totalByCategory.keys.toList();
-
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.category,
-                color: Colors.white,
-                size: 24,
-              ),
-              const SizedBox(width: AppConstants.smallPadding),
-              const Text(
-                'Points par Catégorie',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppConstants.defaultPadding),
-          if (categories.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(AppConstants.defaultPadding),
-                child: Text(
-                  'Aucune statistique par catégorie',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ),
-            )
-          else
-            ...categories.map((category) {
-              final total = (totalByCategory[category] as int? ?? 0);
-              final correct = (correctByCategory[category] as int? ?? 0);
-              final progress = total > 0 ? correct / total : 0.0;
-              final color = categoryColors[category.toLowerCase()] ?? Colors.grey;
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppConstants.smallPadding),
-                child: _CategoryProgress(
-                  category: category,
-                  progress: progress,
-                  color: color,
-                  correct: correct,
-                  total: total,
-                ),
-              );
-            }),
-        ],
-      ),
-    );
-  }
-}
-
-class _CategoryRadarChartCard extends StatelessWidget {
-  final Map<String, dynamic>? stats;
-
-  const _CategoryRadarChartCard({this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    final totalByCategory = stats?['total_by_category'] as Map<String, dynamic>? ?? {};
-    final correctByCategory = stats?['total_correct_by_category'] as Map<String, dynamic>? ?? {};
-
-    final categories = totalByCategory.keys.toList();
-    
-    if (categories.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        ),
-        child: const Center(
-          child: Padding(
-            padding: EdgeInsets.all(AppConstants.defaultPadding),
-            child: Text(
-              'Aucune donnée pour le graphique',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Le graphique radar nécessite au moins 3 catégories
-    if (categories.length < 3) {
-      return Container(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.radar,
-                  color: Colors.white,
-                  size: 24,
-                ),
-                const SizedBox(width: AppConstants.smallPadding),
-                const Text(
-                  'Performance par Catégorie',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppConstants.defaultPadding),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.bar_chart,
-                      size: 60,
-                      color: Colors.white54,
-                    ),
-                    const SizedBox(height: AppConstants.smallPadding),
-                    const Text(
-                      'Graphique disponible bientôt',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: AppConstants.smallPadding),
-                    Text(
-                      'Répondez à des questions dans au moins 3 catégories différentes pour voir le graphique radar.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: AppConstants.smallPadding),
-                    Text(
-                      'Catégories actuelles: ${categories.length}/3',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Couleurs par catégorie pour le graphique
-    final categoryColors = {
-      'general': Colors.blue,
-      'geographie': Colors.green,
-      'geography': Colors.green,
-      'geografia': Colors.green,
-      'histoire': Colors.orange,
-      'history': Colors.orange,
-      'historia': Colors.orange,
-      'science': Colors.purple,
-      'sciences': Colors.purple,
-      'ciencia': Colors.purple,
-      'mathematiques': Colors.red,
-      'mathematics': Colors.red,
-      'matematicas': Colors.red,
-      'art': Colors.pink,
-      'arte': Colors.pink,
-      'sport': Colors.teal,
-      'deporte': Colors.teal,
-    };
-
-    // Trier les catégories pour un affichage cohérent (ordre français)
-    final allCategories = CategoryNormalizer.getAllNormalizedCategories();
-    final sortedCategories = categories.where((c) => allCategories.contains(c)).toList()
-      ..sort((a, b) {
-        final indexA = allCategories.indexOf(a);
-        final indexB = allCategories.indexOf(b);
-        return indexA.compareTo(indexB);
-      });
-    // Ajouter les catégories non standardisées à la fin
-    final otherCategories = categories.where((c) => !allCategories.contains(c)).toList();
-    sortedCategories.addAll(otherCategories);
-
-    // Préparer les données pour le graphique radar
-    final List<RadarDataSet> dataSets = [];
-    final List<String> categoryLabels = [];
-    final List<double> values = [];
-
-    for (final category in sortedCategories) {
-      final total = (totalByCategory[category] as int? ?? 0);
-      final correct = (correctByCategory[category] as int? ?? 0);
-      final percentage = total > 0 ? (correct / total * 100) : 0.0;
-      
-      categoryLabels.add(_formatCategoryName(category));
-      values.add(percentage);
-    }
-
-    // Créer le dataset pour le graphique avec une couleur dynamique
-    final primaryColor = categoryColors[categories.isNotEmpty 
-        ? categories[0].toLowerCase() 
-        : 'general'] ?? Colors.blue;
-    
-    dataSets.add(
-      RadarDataSet(
-        entryRadius: 0,
-        dataEntries: values.map((v) => RadarEntry(value: v)).toList(),
-        fillColor: primaryColor.withValues(alpha: 0.3),
-        borderColor: primaryColor,
-        borderWidth: 2.5,
-      ),
-    );
-
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.radar,
-                color: Colors.white,
-                size: 24,
-              ),
-              const SizedBox(width: AppConstants.smallPadding),
-              const Text(
-                'Performance par Catégorie',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppConstants.defaultPadding),
-          // Légende explicative
-          Container(
-            padding: const EdgeInsets.all(AppConstants.smallPadding),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.info_outline, size: 16, color: Colors.white70),
-                const SizedBox(width: AppConstants.smallPadding),
-                const Text(
-                  'Pourcentage de bonnes réponses par catégorie',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppConstants.defaultPadding),
-          SizedBox(
-            height: 300,
-            child: RadarChart(
-              RadarChartData(
-                dataSets: dataSets,
-                borderData: FlBorderData(show: true),
-                radarBackgroundColor: Colors.white.withValues(alpha: 0.1),
-                tickCount: 5,
-                ticksTextStyle: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 10,
-                ),
-                tickBorderData: const BorderSide(color: Colors.white30, width: 1),
-                gridBorderData: const BorderSide(color: Colors.white30, width: 1),
-                radarTouchData: RadarTouchData(
-                  enabled: true,
-                  touchCallback: (FlTouchEvent event, radarTouchResponse) {
-                    // Afficher les valeurs au survol
-                  },
-                ),
-                titlePositionPercentageOffset: 0.2,
-                getTitle: (index, angle) {
-                  if (index >= categoryLabels.length) return const RadarChartTitle(text: '');
-                  final percentage = values[index];
-                  // Normaliser l'angle entre 0 et 360
-                  final normalizedAngle = angle % 360;
-                  // Déterminer si le texte est en bas du graphique (entre 135° et 225°)
-                  // Dans ce cas, on inverse l'ordre pour que le texte soit lisible
-                  final isBottom = normalizedAngle > 135 && normalizedAngle < 225;
-                  
-                  return RadarChartTitle(
-                    text: isBottom 
-                        ? '${percentage.toStringAsFixed(0)}%\n${categoryLabels[index]}'
-                        : '${categoryLabels[index]}\n${percentage.toStringAsFixed(0)}%',
-                    angle: angle,
-                    positionPercentageOffset: 0.15,
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatCategoryName(String category) {
-    // Utiliser le normaliseur pour obtenir le nom d'affichage français
-    return CategoryNormalizer.getDisplayName(category);
-  }
-}
-
-class _CategoryProgress extends StatelessWidget {
-  final String category;
-  final double progress;
-  final Color color;
-  final int correct;
-  final int total;
-
-  const _CategoryProgress({
-    required this.category,
-    required this.progress,
-    required this.color,
-    this.correct = 0,
-    this.total = 0,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                category,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            Text(
-              '$correct/$total (${(progress * 100).toInt()}%)',
-              style: TextStyle(
-                color: color,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppConstants.smallPadding),
-        LinearProgressIndicator(
-          value: progress,
-          backgroundColor: Colors.white.withValues(alpha: 0.2),
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-        ),
-      ],
     );
   }
 }
@@ -820,12 +329,7 @@ class _LeaderboardCardState extends State<_LeaderboardCard> {
       final prefs = await SharedPreferences.getInstance();
       final authService = AuthService();
       
-      if (!authService.isAuthenticated) {
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
+      if (!authService.isAuthenticated) return;
 
       final languageService = LanguageService(prefs);
       final quizService = QuizService(
@@ -844,83 +348,42 @@ class _LeaderboardCardState extends State<_LeaderboardCard> {
         });
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Erreur lors du chargement du classement: $e');
-      }
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
+      padding: const EdgeInsets.all(AppConstants.largePadding),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.leaderboard,
-                color: Colors.white,
-                size: 24,
-              ),
-              const SizedBox(width: AppConstants.smallPadding),
-              const Text(
-                'Classement',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+          const Text(
+            'CLASSEMENT',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: AppConstants.primaryBlue,
+              letterSpacing: 1.5,
+            ),
           ),
-          const SizedBox(height: AppConstants.defaultPadding),
+          const SizedBox(height: AppConstants.largePadding),
           if (_isLoading)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(AppConstants.defaultPadding),
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              ),
-            )
+            const Center(child: LinearProgressIndicator())
           else if (_rankingData == null || _rankingData!['total_players'] == 0)
-            const Center(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.leaderboard,
-                    size: 60,
-                    color: Colors.white54,
-                  ),
-                  SizedBox(height: AppConstants.smallPadding),
-                  Text(
-                    'Aucun classement disponible',
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    'Jouez pour apparaître dans le classement !',
-                    style: TextStyle(
-                      color: Colors.white38,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            )
+            const Center(child: Text('Aucun classement', style: TextStyle(color: Colors.grey)))
           else
             _buildRankingContent(),
         ],
@@ -931,156 +394,199 @@ class _LeaderboardCardState extends State<_LeaderboardCard> {
   Widget _buildRankingContent() {
     final position = _rankingData!['position'] as int? ?? 0;
     final totalPlayers = _rankingData!['total_players'] as int? ?? 0;
-    final score = _rankingData!['score'] as double? ?? 0.0;
     final isTop10 = _rankingData!['is_top_10_percent'] as bool? ?? false;
     final isTop20 = _rankingData!['is_top_20_percent'] as bool? ?? false;
     final isTop50 = _rankingData!['is_top_50_percent'] as bool? ?? false;
 
-    // Déterminer le badge et la couleur
-    String badgeText = '';
     Color badgeColor = Colors.grey;
-    IconData badgeIcon = Icons.emoji_events;
+    String badgeText = 'Joueur';
+    if (isTop10) { badgeColor = AppConstants.primaryOrange; badgeText = 'Top 10%'; }
+    else if (isTop20) { badgeColor = AppConstants.darkOrange; badgeText = 'Top 20%'; }
+    else if (isTop50) { badgeColor = AppConstants.primaryBlue; badgeText = 'Top 50%'; }
 
-    if (isTop10) {
-      badgeText = 'Top 10%';
-      badgeColor = Colors.amber;
-      badgeIcon = Icons.emoji_events;
-    } else if (isTop20) {
-      badgeText = 'Top 20%';
-      badgeColor = Colors.orange;
-      badgeIcon = Icons.stars;
-    } else if (isTop50) {
-      badgeText = 'Top 50%';
-      badgeColor = Colors.blue;
-      badgeIcon = Icons.workspace_premium;
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Position et score principal
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Position',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 14,
+            Text(
+              '$position / $totalPlayers',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.black87),
+            ),
+            Text('Rang actuel', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+          ],
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: badgeColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: badgeColor.withOpacity(0.5)),
+          ),
+          child: Text(
+            badgeText,
+            style: TextStyle(color: badgeColor, fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CategoryRadarChartCard extends StatelessWidget {
+  final Map<String, dynamic>? stats;
+
+  const _CategoryRadarChartCard({this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    final totalByCategory = stats?['total_by_category'] as Map<String, dynamic>? ?? {};
+    final correctByCategory = stats?['total_correct_by_category'] as Map<String, dynamic>? ?? {};
+    final categories = totalByCategory.keys.toList();
+    
+    return Container(
+      padding: const EdgeInsets.all(AppConstants.largePadding),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'PERFORMANCE',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: AppConstants.primaryBlue,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: AppConstants.largePadding),
+          if (categories.length < 3)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Text('Jouez plus pour voir le graphique', style: TextStyle(color: Colors.grey)),
+              ),
+            )
+          else
+            SizedBox(
+              height: 250,
+              child: RadarChart(
+                RadarChartData(
+                  dataSets: [
+                    RadarDataSet(
+                      fillColor: AppConstants.primaryBlue.withOpacity(0.2),
+                      borderColor: AppConstants.primaryBlue,
+                      entryRadius: 3,
+                      dataEntries: categories.map((c) {
+                        final total = totalByCategory[c] as int;
+                        final correct = correctByCategory[c] as int? ?? 0;
+                        return RadarEntry(value: total > 0 ? (correct / total * 100) : 0);
+                      }).toList(),
                     ),
+                  ],
+                  radarBorderData: const BorderSide(color: Colors.transparent),
+                  tickBorderData: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                  gridBorderData: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                  tickCount: 3,
+                  ticksTextStyle: const TextStyle(color: Colors.transparent),
+                  getTitle: (index, angle) => RadarChartTitle(
+                    text: CategoryNormalizer.getDisplayName(categories[index]),
+                    angle: angle,
                   ),
-                  const SizedBox(height: AppConstants.smallPadding),
-                  Text(
-                    '$position / $totalPlayers',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-            if (badgeText.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppConstants.defaultPadding,
-                  vertical: AppConstants.smallPadding,
-                ),
-                decoration: BoxDecoration(
-                  color: badgeColor.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-                  border: Border.all(
-                    color: badgeColor,
-                    width: 2,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryStatsCard extends StatelessWidget {
+  final Map<String, dynamic>? stats;
+
+  const _CategoryStatsCard({this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    final totalByCategory = stats?['total_by_category'] as Map<String, dynamic>? ?? {};
+    final correctByCategory = stats?['total_correct_by_category'] as Map<String, dynamic>? ?? {};
+    final categories = totalByCategory.keys.toList();
+
+    return Container(
+      padding: const EdgeInsets.all(AppConstants.largePadding),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'DÉTAILS PAR CATÉGORIE',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: AppConstants.primaryBlue,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: AppConstants.largePadding),
+          if (categories.isEmpty)
+            const Center(child: Text('Aucune donnée', style: TextStyle(color: Colors.grey)))
+          else
+            ...categories.map((cat) {
+              final total = totalByCategory[cat] as int;
+              final correct = correctByCategory[cat] as int? ?? 0;
+              final progress = total > 0 ? correct / total : 0.0;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      badgeIcon,
-                      color: badgeColor,
-                      size: 20,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(CategoryNormalizer.getDisplayName(cat), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text('$correct/$total', style: const TextStyle(color: AppConstants.primaryBlue, fontWeight: FontWeight.bold)),
+                      ],
                     ),
-                    const SizedBox(width: AppConstants.smallPadding),
-                    Text(
-                      badgeText,
-                      style: TextStyle(
-                        color: badgeColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        backgroundColor: Colors.grey[100],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          progress > 0.7 ? Colors.green : (progress > 0.4 ? AppConstants.primaryOrange : AppConstants.primaryBlue),
+                        ),
+                        minHeight: 8,
                       ),
                     ),
                   ],
                 ),
-              ),
-          ],
-        ),
-        const SizedBox(height: AppConstants.defaultPadding),
-        // Score moyen
-        Container(
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Column(
-                children: [
-                  Text(
-                    '${score.toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.smallPadding),
-                  Text(
-                    'Score moyen',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: Colors.white.withValues(alpha: 0.3),
-              ),
-              Column(
-                children: [
-                  Text(
-                    '${((totalPlayers - position + 1) / totalPlayers * 100).toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.smallPadding),
-                  Text(
-                    'Mieux que',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
+              );
+            }),
+        ],
+      ),
     );
   }
 }
@@ -1090,25 +596,14 @@ class _LogoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding),
-      child: ElevatedButton.icon(
-        onPressed: () => _showLogoutDialog(context),
-        icon: const Icon(Icons.logout),
-        label: const Text('Se déconnecter'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppConstants.defaultPadding,
-            vertical: AppConstants.defaultPadding,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          ),
-        ),
+    return TextButton.icon(
+      onPressed: () => _showLogoutDialog(context),
+      icon: const Icon(Icons.logout_rounded, color: Colors.red),
+      label: const Text(
+        'SE DÉCONNECTER',
+        style: TextStyle(color: Colors.red, fontWeight: FontWeight.w900, letterSpacing: 1),
       ),
+      style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16)),
     );
   }
 
@@ -1116,19 +611,18 @@ class _LogoutButton extends StatelessWidget {
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Déconnexion'),
-        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+        content: const Text('Souhaitez-vous vraiment vous déconnecter ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annuler'),
+            child: const Text('ANNULER', style: TextStyle(color: Colors.grey)),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
-            child: const Text('Déconnexion'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('DÉCONNEXION'),
           ),
         ],
       ),
@@ -1137,26 +631,10 @@ class _LogoutButton extends StatelessWidget {
     if (shouldLogout != true || !context.mounted) return;
 
     try {
-      final authService = AuthService();
-      await authService.signOut();
-
-      if (context.mounted) {
-        // Rediriger vers l'écran d'authentification
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          '/auth',
-          (route) => false, // Supprimer toutes les routes précédentes
-        );
-      }
+      await AuthService().signOut();
+      if (context.mounted) Navigator.of(context).pushNamedAndRemoveUntil('/auth', (route) => false);
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur lors de la déconnexion: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
     }
   }
 }
@@ -1167,38 +645,20 @@ class _StatItem extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _StatItem({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.color,
-  });
+  const _StatItem({required this.icon, required this.value, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(
-          icon,
-          color: color,
-          size: 24,
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+          child: Icon(icon, color: color, size: 24),
         ),
-        const SizedBox(height: AppConstants.smallPadding),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.8),
-            fontSize: 12,
-          ),
-        ),
+        const SizedBox(height: 8),
+        Text(value, style: const TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -1208,52 +668,29 @@ class _LanguageSelectorBottomSheet extends StatelessWidget {
   final Language? currentLanguage;
   final Function(Language) onLanguageChanged;
 
-  const _LanguageSelectorBottomSheet({
-    required this.currentLanguage,
-    required this.onLanguageChanged,
-  });
+  const _LanguageSelectorBottomSheet({required this.currentLanguage, required this.onLanguageChanged});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(top: AppConstants.smallPadding),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
+          const SizedBox(height: 12),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+          const Padding(
+            padding: EdgeInsets.all(24),
+            child: Text('CHOISIR UNE LANGUE', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppConstants.primaryBlue, letterSpacing: 1)),
           ),
-          Padding(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: Text(
-              'Changer de langue',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-          ),
-          ...Language.values.map((language) => ListTile(
-            leading: Icon(
-              Icons.flag,
-              color: language == currentLanguage ? Colors.blue : Colors.grey,
-            ),
-            title: Text(language.displayName),
-            trailing: language == currentLanguage
-                ? const Icon(Icons.check, color: Colors.blue)
-                : null,
-            onTap: () {
-              onLanguageChanged(language);
-              // Le Navigator.pop est déjà géré dans onLanguageChanged
-            },
+          ...Language.values.map((lang) => ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+            leading: Text(lang.displayName.substring(0, 2).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+            title: Text(lang.displayName, style: TextStyle(fontWeight: lang == currentLanguage ? FontWeight.bold : FontWeight.normal)),
+            trailing: lang == currentLanguage ? const Icon(Icons.check_circle_rounded, color: AppConstants.primaryBlue) : null,
+            onTap: () => onLanguageChanged(lang),
           )),
-          const SizedBox(height: AppConstants.defaultPadding),
+          const SizedBox(height: 24),
         ],
       ),
     );
