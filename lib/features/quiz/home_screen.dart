@@ -313,102 +313,68 @@ class _StartQuizOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        child: Container(
-          width: 220,
-          height: 220,
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blue.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+    return Container(
+      width: double.infinity,
+      height: 160,
+      margin: const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(32),
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF667eea),
+                  Color(0xFF764ba2),
+                ],
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icône
-              Container(
-                padding: const EdgeInsets.all(AppConstants.smallPadding),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(40),
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF667eea).withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
-                child: const Icon(
-                  Icons.quiz,
-                  size: 40,
-                  color: Colors.blue,
+              ],
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.play_circle_filled_rounded,
+                  size: 72,
+                  color: Colors.white,
                 ),
-              ),
-              
-              const SizedBox(height: AppConstants.defaultPadding),
-              
-              // Titre
-              const Text(
-                'Démarrer un Quiz',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-              ),
-              
-              const SizedBox(height: AppConstants.smallPadding),
-              
-              // Sous-titre
-              const Text(
-                'Testez vos connaissances !',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              
-              const SizedBox(height: AppConstants.defaultPadding),
-              
-              // Bouton Commencer
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppConstants.smallPadding,
-                  vertical: AppConstants.smallPadding / 2,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Row(
+                SizedBox(width: 20),
+                Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.play_arrow,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                    SizedBox(width: AppConstants.smallPadding / 2),
                     Text(
-                      'Commencer',
+                      'DÉMARRER',
                       style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
                         color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    Text(
+                      'Prêt pour le défi ?',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

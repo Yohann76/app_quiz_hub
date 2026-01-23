@@ -2,13 +2,10 @@
 
 ## V1 
 
-Profil page:
-- classement page (need many user? must be display classement x/x, top 20%, top 10%...)
-
-
 Game: 
 - Complete Quizz file (fr_app_content,en_app_content,es_app_content)(test)
 - Sound when good response is check 
+- Design app 
 
 App:
 - When language is selected, translate all texte in interface (l18n app)
@@ -20,6 +17,11 @@ Data:
 
 BUG:
 - 
+
+DEPLOY:
+- Export in APK for test android
+- Fix bug APK
+- Create store account
 
 ## V2
 
