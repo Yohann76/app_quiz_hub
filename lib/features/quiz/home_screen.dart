@@ -28,11 +28,15 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadData();
   }
 
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadData({bool silent = false}) async {
+    if (mounted && !silent) {
+      setState(() => _isLoading = true);
+    }
     await _loadCurrentLanguage();
     await _loadStats();
-    if (mounted) setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _loadStats() async {
@@ -150,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.person_outline_rounded),
-            onPressed: () => Navigator.pushNamed(context, '/profile'),
+            onPressed: () => Navigator.pushNamed(context, '/profile').then((_) => _loadData(silent: true)),
           ),
         ],
       ),
@@ -165,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 
                 // Option principale - Démarrer un Quiz
                 _StartQuizOption(
-                  onTap: () => Navigator.pushNamed(context, '/quiz'),
+                  onTap: () => Navigator.pushNamed(context, '/quiz').then((_) => _loadData(silent: true)),
                   language: lang,
                 ),
                 
