@@ -8,6 +8,7 @@ import '../../shared/services/quiz_service.dart';
 import '../../shared/services/database_service.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
+import '../../shared/services/audio_service.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
@@ -120,6 +121,9 @@ class _QuizScreenState extends State<QuizScreen> {
     if (isCorrect) {
       _correctAnswers++;
       _sessionScore += 5; // 5 points par bonne réponse
+      AudioService().playSuccess();
+    } else {
+      AudioService().playError();
     }
     _totalAnswered++;
 

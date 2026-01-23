@@ -4,8 +4,6 @@
 
 Game: 
 - Complete Quizz file (fr_app_content,en_app_content,es_app_content)(test)
-- Sound when good response is check 
-- Design app 
 
 App:
 - When language is selected, translate all texte in interface (l18n app)
