@@ -9,6 +9,7 @@ import '../../shared/services/user_service.dart';
 import '../../shared/services/database_service.dart';
 import '../../shared/services/quiz_service.dart';
 import '../../shared/services/language_service.dart';
+import '../../shared/services/translation_service.dart';
 import '../../shared/models/user_profile.dart';
 import '../../shared/models/language.dart';
 
@@ -137,15 +138,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
+    final lang = _currentLanguage ?? Language.french;
+
     return Scaffold(
       backgroundColor: AppConstants.backgroundLight,
       appBar: AppBar(
-        title: const Text('MON PROFIL', style: TextStyle(letterSpacing: 2)),
+        title: Text(t.translate('my_profile', lang), style: const TextStyle(letterSpacing: 2)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.language_rounded),
+          TextButton(
             onPressed: _showLanguageSelector,
-            tooltip: 'Changer de langue',
+            child: Text(
+              lang.flag,
+              style: const TextStyle(fontSize: 24),
+            ),
           ),
         ],
       ),
@@ -162,27 +168,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: AppConstants.largePadding * 1.5),
                   
                   // Statistiques globales
-                  _GlobalStatsCard(stats: _userStats),
+                  _GlobalStatsCard(stats: _userStats, language: lang),
                   
                   const SizedBox(height: AppConstants.largePadding),
                   
                   // Classement
-                  _LeaderboardCard(userProfile: _userProfile),
+                  _LeaderboardCard(userProfile: _userProfile, language: lang),
                   
                   const SizedBox(height: AppConstants.largePadding),
                   
                   // Graphique en forme d'araignée par catégorie
-                  _CategoryRadarChartCard(stats: _userStats),
+                  _CategoryRadarChartCard(stats: _userStats, language: lang),
                   
                   const SizedBox(height: AppConstants.largePadding),
                   
                   // Points par catégorie
-                  _CategoryStatsCard(stats: _userStats),
+                  _CategoryStatsCard(stats: _userStats, language: lang),
                   
                   const SizedBox(height: AppConstants.largePadding * 2),
                   
                   // Bouton de déconnexion
-                  const _LogoutButton(),
+                  _LogoutButton(language: lang),
                   
                   const SizedBox(height: AppConstants.largePadding),
                 ],
@@ -240,11 +246,13 @@ class _ProfileHeader extends StatelessWidget {
 
 class _GlobalStatsCard extends StatelessWidget {
   final Map<String, dynamic>? stats;
+  final Language language;
 
-  const _GlobalStatsCard({this.stats});
+  const _GlobalStatsCard({this.stats, required this.language});
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
     final totalCorrect = stats?['total_correct_answers'] as int? ?? 0;
     final totalQuestions = stats?['total_questions'] as int? ?? 0;
     final averageScore = stats?['average_score'] as double? ?? 0.0;
@@ -266,9 +274,9 @@ class _GlobalStatsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'STATISTIQUES',
-            style: TextStyle(
+          Text(
+            t.translate('statistiques', language),
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
               color: AppConstants.primaryBlue,
@@ -282,19 +290,19 @@ class _GlobalStatsCard extends StatelessWidget {
               _StatItem(
                 icon: Icons.check_circle_outline_rounded,
                 value: totalCorrect.toString(),
-                label: 'Correctes',
+                label: t.translate('correct_answers', language),
                 color: Colors.green,
               ),
               _StatItem(
                 icon: Icons.bolt_rounded,
                 value: '${averageScore.toStringAsFixed(0)}%',
-                label: 'Précision',
+                label: t.translate('precision', language),
                 color: AppConstants.primaryOrange,
               ),
               _StatItem(
                 icon: Icons.stars_rounded,
                 value: totalScore.toString(),
-                label: 'Score',
+                label: t.translate('score', language),
                 color: AppConstants.primaryBlue,
               ),
             ],
@@ -307,8 +315,9 @@ class _GlobalStatsCard extends StatelessWidget {
 
 class _LeaderboardCard extends StatefulWidget {
   final UserProfile? userProfile;
+  final Language language;
 
-  const _LeaderboardCard({this.userProfile});
+  const _LeaderboardCard({this.userProfile, required this.language});
 
   @override
   State<_LeaderboardCard> createState() => _LeaderboardCardState();
@@ -354,6 +363,7 @@ class _LeaderboardCardState extends State<_LeaderboardCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
     return Container(
       padding: const EdgeInsets.all(AppConstants.largePadding),
       decoration: BoxDecoration(
@@ -370,9 +380,9 @@ class _LeaderboardCardState extends State<_LeaderboardCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'CLASSEMENT',
-            style: TextStyle(
+          Text(
+            t.translate('classement', widget.language),
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
               color: AppConstants.primaryBlue,
@@ -383,15 +393,15 @@ class _LeaderboardCardState extends State<_LeaderboardCard> {
           if (_isLoading)
             const Center(child: LinearProgressIndicator())
           else if (_rankingData == null || _rankingData!['total_players'] == 0)
-            const Center(child: Text('Aucun classement', style: TextStyle(color: Colors.grey)))
+            Center(child: Text(t.translate('no_ranking', widget.language), style: const TextStyle(color: Colors.grey)))
           else
-            _buildRankingContent(),
+            _buildRankingContent(t),
         ],
       ),
     );
   }
 
-  Widget _buildRankingContent() {
+  Widget _buildRankingContent(TranslationService t) {
     final position = _rankingData!['position'] as int? ?? 0;
     final totalPlayers = _rankingData!['total_players'] as int? ?? 0;
     final isTop10 = _rankingData!['is_top_10_percent'] as bool? ?? false;
@@ -414,7 +424,7 @@ class _LeaderboardCardState extends State<_LeaderboardCard> {
               '$position / $totalPlayers',
               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.black87),
             ),
-            Text('Rang actuel', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            Text(t.translate('rank_actual', widget.language), style: TextStyle(color: Colors.grey[600], fontSize: 12)),
           ],
         ),
         Container(
@@ -436,11 +446,13 @@ class _LeaderboardCardState extends State<_LeaderboardCard> {
 
 class _CategoryRadarChartCard extends StatelessWidget {
   final Map<String, dynamic>? stats;
+  final Language language;
 
-  const _CategoryRadarChartCard({this.stats});
+  const _CategoryRadarChartCard({this.stats, required this.language});
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
     final totalByCategory = stats?['total_by_category'] as Map<String, dynamic>? ?? {};
     final correctByCategory = stats?['total_correct_by_category'] as Map<String, dynamic>? ?? {};
     final categories = totalByCategory.keys.toList();
@@ -461,9 +473,9 @@ class _CategoryRadarChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'PERFORMANCE',
-            style: TextStyle(
+          Text(
+            t.translate('performance', language),
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
               color: AppConstants.primaryBlue,
@@ -472,10 +484,10 @@ class _CategoryRadarChartCard extends StatelessWidget {
           ),
           const SizedBox(height: AppConstants.largePadding),
           if (categories.length < 3)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Text('Jouez plus pour voir le graphique', style: TextStyle(color: Colors.grey)),
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text(t.translate('play_more_graph', language), style: const TextStyle(color: Colors.grey)),
               ),
             )
           else
@@ -515,11 +527,13 @@ class _CategoryRadarChartCard extends StatelessWidget {
 
 class _CategoryStatsCard extends StatelessWidget {
   final Map<String, dynamic>? stats;
+  final Language language;
 
-  const _CategoryStatsCard({this.stats});
+  const _CategoryStatsCard({this.stats, required this.language});
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
     final totalByCategory = stats?['total_by_category'] as Map<String, dynamic>? ?? {};
     final correctByCategory = stats?['total_correct_by_category'] as Map<String, dynamic>? ?? {};
     final categories = totalByCategory.keys.toList();
@@ -540,9 +554,9 @@ class _CategoryStatsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'DÉTAILS PAR CATÉGORIE',
-            style: TextStyle(
+          Text(
+            t.translate('details_category', language),
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
               color: AppConstants.primaryBlue,
@@ -551,7 +565,7 @@ class _CategoryStatsCard extends StatelessWidget {
           ),
           const SizedBox(height: AppConstants.largePadding),
           if (categories.isEmpty)
-            const Center(child: Text('Aucune donnée', style: TextStyle(color: Colors.grey)))
+            Center(child: Text(t.translate('no_ranking', language), style: const TextStyle(color: Colors.grey)))
           else
             ...categories.map((cat) {
               final total = totalByCategory[cat] as int;
@@ -592,37 +606,39 @@ class _CategoryStatsCard extends StatelessWidget {
 }
 
 class _LogoutButton extends StatelessWidget {
-  const _LogoutButton();
+  final Language language;
+  const _LogoutButton({required this.language});
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
     return TextButton.icon(
-      onPressed: () => _showLogoutDialog(context),
+      onPressed: () => _showLogoutDialog(context, t),
       icon: const Icon(Icons.logout_rounded, color: Colors.red),
-      label: const Text(
-        'SE DÉCONNECTER',
-        style: TextStyle(color: Colors.red, fontWeight: FontWeight.w900, letterSpacing: 1),
+      label: Text(
+        t.translate('logout', language),
+        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w900, letterSpacing: 1),
       ),
       style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16)),
     );
   }
 
-  Future<void> _showLogoutDialog(BuildContext context) async {
+  Future<void> _showLogoutDialog(BuildContext context, TranslationService t) async {
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Déconnexion'),
-        content: const Text('Souhaitez-vous vraiment vous déconnecter ?'),
+        title: Text(t.translate('logout', language)),
+        content: Text(t.translate('confirm_logout', language)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('ANNULER', style: TextStyle(color: Colors.grey)),
+            child: Text(t.translate('cancel', language), style: const TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('DÉCONNEXION'),
+            child: Text(t.translate('logout', language)),
           ),
         ],
       ),

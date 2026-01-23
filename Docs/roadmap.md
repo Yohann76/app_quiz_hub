@@ -3,18 +3,14 @@
 ## V1 
 
 Game: 
-- Complete Quizz file (fr_app_content,en_app_content,es_app_content)(test)
+- Tap for skip response (if no tap for 10 seconds, skip explication and next question)
 
 App:
-- When language is selected, translate all texte in interface (l18n app)
 - Account must be save in local app (cause: different port use)
 
 Data:
-- Verify structure for app_content file
 - Create parser content CLI dart -> for test all construction content file and detect error before prod
-
-BUG:
-- 
+- Complete Quizz file (fr_app_content,en_app_content,es_app_content)
 
 DEPLOY:
 - Export in APK for test android
@@ -27,7 +23,7 @@ Onboearding
 - Improve speed account setup 
 
 Payment:
-- By default pub each 10 question
+- By default pub each 20 question (20 in a config constant file, later 15 question...)
 - Pay 2euros per month for not have pub
 
 ## Deploy

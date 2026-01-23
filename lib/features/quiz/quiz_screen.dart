@@ -9,6 +9,7 @@ import '../../shared/services/database_service.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
 import '../../shared/services/audio_service.dart';
+import '../../shared/services/translation_service.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
@@ -213,30 +214,32 @@ class _QuizScreenState extends State<QuizScreen> {
       );
     }
 
+    final t = TranslationService();
+    final lang = _currentLanguage ?? Language.french;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QUIZ', style: TextStyle(letterSpacing: 2)),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppConstants.primaryOrange.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${t.translate('score', lang)}: $_sessionScore',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.star_rounded, color: AppConstants.primaryOrange, size: 20),
-                const SizedBox(width: 4),
-                Text(
-                  '$_sessionScore',
-                  style: const TextStyle(
-                    color: AppConstants.primaryOrange,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+            Text(
+              '$_correctAnswers/$_totalAnswered ${t.translate('correct_answers', lang).toLowerCase()}',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Center(
+              child: Text(
+                lang.flag,
+                style: const TextStyle(fontSize: 24),
+              ),
             ),
           ),
         ],
@@ -358,8 +361,8 @@ class _QuizScreenState extends State<QuizScreen> {
                                     const SizedBox(width: 8),
                                     Text(
                                       _currentQuestion!.isCorrect(_selectedAnswerIndex!)
-                                          ? 'EXCELLENT !'
-                                          : 'PAS TOUT À FAIT...',
+                                          ? t.translate('excellent', lang)
+                                          : t.translate('not_quite', lang),
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w900,

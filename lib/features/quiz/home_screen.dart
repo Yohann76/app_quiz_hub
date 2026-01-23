@@ -7,6 +7,7 @@ import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
 import '../../shared/services/database_service.dart';
 import '../../shared/services/quiz_service.dart';
+import '../../shared/services/translation_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -133,13 +134,19 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
+    final t = TranslationService();
+    final lang = _currentLanguage ?? Language.french;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppConstants.appName.toUpperCase(), style: const TextStyle(letterSpacing: 2)),
+        title: Text(t.translate('app_name', lang), style: const TextStyle(letterSpacing: 2)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.language_rounded),
+          TextButton(
             onPressed: _showLanguageSelector,
+            child: Text(
+              lang.flag,
+              style: const TextStyle(fontSize: 24),
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.person_outline_rounded),
@@ -154,41 +161,12 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
             child: Column(
               children: [
-                // En-tête avec la langue actuelle
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.language_rounded, color: AppConstants.primaryBlue, size: 20),
-                      const SizedBox(width: 10),
-                      Text(
-                        _currentLanguage?.displayName ?? "Non définie",
-                        style: const TextStyle(
-                          color: AppConstants.primaryBlue,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: AppConstants.largePadding * 2),
+                const SizedBox(height: AppConstants.largePadding),
                 
                 // Option principale - Démarrer un Quiz
                 _StartQuizOption(
                   onTap: () => Navigator.pushNamed(context, '/quiz'),
+                  language: lang,
                 ),
                 
                 const SizedBox(height: AppConstants.largePadding * 2),
@@ -197,6 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _QuickStatsRow(
                   stats: _userStats,
                   totalAvailable: _totalQuestionsInAssets,
+                  language: lang,
                 ),
               ],
             ),
@@ -300,14 +279,17 @@ class _HomeScreenState extends State<HomeScreen> {
 class _QuickStatsRow extends StatelessWidget {
   final Map<String, dynamic>? stats;
   final int totalAvailable;
+  final Language language;
 
   const _QuickStatsRow({
     this.stats,
     required this.totalAvailable,
+    required this.language,
   });
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
     final totalCorrect = stats?['total_correct_answers'] as int? ?? 0;
     final uniqueAnswered = stats?['unique_questions_answered'] as int? ?? 0;
     final accuracy = stats?['average_score'] as double? ?? 0.0;
@@ -332,25 +314,25 @@ class _QuickStatsRow extends StatelessWidget {
           _StatItem(
             icon: Icons.check_circle_outline_rounded,
             value: totalCorrect.toString(),
-            label: 'Correctes',
+            label: t.translate('correct_answers', language),
             color: Colors.green,
           ),
           _StatItem(
             icon: Icons.quiz_outlined,
             value: '$uniqueAnswered/$totalAvailable',
-            label: 'Questions',
+            label: t.translate('questions', language),
             color: AppConstants.primaryBlue,
           ),
           _StatItem(
             icon: Icons.bolt_rounded,
             value: '${accuracy.toStringAsFixed(0)}%',
-            label: 'Précision',
+            label: t.translate('precision', language),
             color: AppConstants.primaryOrange,
           ),
           _StatItem(
             icon: Icons.stars_rounded,
             value: totalScore.toString(),
-            label: 'Score',
+            label: t.translate('score', language),
             color: Colors.purple,
           ),
         ],
@@ -361,13 +343,16 @@ class _QuickStatsRow extends StatelessWidget {
 
 class _StartQuizOption extends StatelessWidget {
   final VoidCallback onTap;
+  final Language language;
 
   const _StartQuizOption({
     required this.onTap,
+    required this.language,
   });
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
     return Container(
       width: double.infinity,
       height: 160,
@@ -396,22 +381,22 @@ class _StartQuizOption extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Icons.play_circle_filled_rounded,
                   size: 72,
                   color: Colors.white,
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'DÉMARRER',
-                      style: TextStyle(
+                      t.translate('start_quiz', language),
+                      style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
@@ -419,8 +404,8 @@ class _StartQuizOption extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Prêt pour le défi ?',
-                      style: TextStyle(
+                      t.translate('ready_challenge', language),
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.white70,
                         fontWeight: FontWeight.w500,
@@ -495,45 +480,59 @@ class _LanguageSelectorBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
+    final lang = currentLanguage ?? Language.french;
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const SizedBox(height: 12),
           Container(
             width: 40,
             height: 4,
-            margin: const EdgeInsets.only(top: AppConstants.smallPadding),
             decoration: BoxDecoration(
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            padding: const EdgeInsets.all(24),
             child: Text(
-              'Changer de langue',
-              style: Theme.of(context).textTheme.headlineSmall,
+              t.translate('choose_language', lang),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: AppConstants.primaryBlue,
+                letterSpacing: 1,
+              ),
             ),
           ),
           ...Language.values.map((language) => ListTile(
-            leading: Icon(
-              Icons.flag,
-              color: language == currentLanguage ? Colors.blue : Colors.grey,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+            leading: Text(
+              language.flag,
+              style: const TextStyle(fontSize: 24),
             ),
-            title: Text(language.displayName),
+            title: Text(
+              language.displayName,
+              style: TextStyle(
+                fontWeight: language == currentLanguage ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
             trailing: language == currentLanguage
-                ? const Icon(Icons.check, color: Colors.blue)
+                ? const Icon(Icons.check_circle_rounded, color: AppConstants.primaryBlue)
                 : null,
             onTap: () {
               onLanguageChanged(language);
               Navigator.pop(context);
             },
           )),
-          const SizedBox(height: AppConstants.defaultPadding),
+          const SizedBox(height: 24),
         ],
       ),
     );

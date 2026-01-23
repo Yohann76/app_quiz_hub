@@ -3,6 +3,9 @@ import '../../core/constants/app_constants.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
 import '../../shared/services/database_service.dart';
+import '../../shared/services/language_service.dart';
+import '../../shared/services/translation_service.dart';
+import '../../shared/models/language.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -18,14 +21,15 @@ class _AuthScreenState extends State<AuthScreen> {
   final _passwordController = TextEditingController();
   bool _isLogin = true;
   bool _isLoading = false;
+  Language _currentLanguage = Language.french;
   String? _errorMessage;
-
   late final AuthService _authService;
 
   @override
   void initState() {
     super.initState();
     _authService = AuthService();
+    _loadLanguage();
   }
 
   @override
@@ -33,6 +37,34 @@ class _AuthScreenState extends State<AuthScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lang = await LanguageService(prefs).getCurrentLanguage();
+    if (mounted) {
+      setState(() {
+        _currentLanguage = lang;
+      });
+    }
+  }
+
+  void _showLanguageSelector() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _LanguageSelectorBottomSheet(
+        currentLanguage: _currentLanguage,
+        onLanguageChanged: (language) async {
+          setState(() {
+            _currentLanguage = language;
+          });
+          final prefs = await SharedPreferences.getInstance();
+          await LanguageService(prefs).setLanguage(language);
+        },
+      ),
+    );
   }
 
   Future<void> _handleAuth() async {
@@ -54,41 +86,35 @@ class _AuthScreenState extends State<AuthScreen> {
         );
       } else {
         // Inscription
-        final response = await _authService.signUpWithEmail(
+        await _authService.signUpWithEmail(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
         
-        // Vérifier si l'utilisateur est connecté après l'inscription
-        // Si la vérification d'email est activée, l'utilisateur ne sera pas connecté immédiatement
         if (!_authService.isAuthenticated) {
-          // L'utilisateur doit vérifier son email
           if (mounted) {
             setState(() {
               _isLoading = false;
               _errorMessage = null;
             });
-            // Afficher un message informatif
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
-                  'Un email de confirmation a été envoyé. Veuillez vérifier votre boîte mail et cliquer sur le lien pour activer votre compte.',
+                  'Un email de confirmation a été envoyé. Veuillez vérifier votre boîte mail.',
                 ),
                 backgroundColor: Colors.blue,
                 duration: Duration(seconds: 5),
               ),
             );
-            return; // Ne pas continuer le processus
+            return;
           }
         }
       }
 
-      // Vérifier que l'utilisateur est bien connecté avant de continuer
       if (!_authService.isAuthenticated) {
         throw Exception('Erreur d\'authentification. Veuillez réessayer.');
       }
 
-      // Vérifier si le profil est complet
       final prefs = await SharedPreferences.getInstance();
       final userService = UserService(
         authService: _authService,
@@ -118,24 +144,40 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = TranslationService();
+    final lang = _currentLanguage;
+
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppConstants.primaryBlue,
-              AppConstants.lightBlue,
-            ],
+      body: Stack(
+        children: [
+          // Background Gradient
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [AppConstants.primaryBlue, AppConstants.lightBlue],
+              ),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppConstants.largePadding),
-              child: Form(
-                key: _formKey,
+          
+          // Language selector button
+          Positioned(
+            top: 40,
+            right: 20,
+            child: TextButton(
+              onPressed: _showLanguageSelector,
+              child: Text(
+                lang.flag,
+                style: const TextStyle(fontSize: 28),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppConstants.largePadding),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -153,16 +195,19 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     const SizedBox(height: AppConstants.largePadding),
                     Text(
-                      AppConstants.appName.toUpperCase(),
+                      t.translate('app_name', lang),
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
-                        letterSpacing: 2,
+                        letterSpacing: 4,
                       ),
                     ),
-                    const SizedBox(height: AppConstants.largePadding * 2),
+                    const SizedBox(height: 40),
+                    
+                    // Auth Card
                     Container(
+                      padding: const EdgeInsets.all(AppConstants.largePadding),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
@@ -174,117 +219,105 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(AppConstants.largePadding),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            _isLogin ? 'Bon retour !' : 'Créer un compte',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: AppConstants.primaryBlue,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: AppConstants.largePadding),
-                          TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              prefixIcon: const Icon(Icons.email_outlined),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                              fillColor: Colors.grey[100],
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Veuillez entrer votre email';
-                              }
-                              if (!value.contains('@')) {
-                                return 'Email invalide';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: AppConstants.defaultPadding),
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: true,
-                            decoration: InputDecoration(
-                              labelText: 'Mot de passe',
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                              fillColor: Colors.grey[100],
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Veuillez entrer votre mot de passe';
-                              }
-                              if (value.length < 6) {
-                                return 'Le mot de passe doit contenir au moins 6 caractères';
-                              }
-                              return null;
-                            },
-                          ),
-                          if (_errorMessage != null) ...[
-                            const SizedBox(height: AppConstants.defaultPadding),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
                             Text(
-                              _errorMessage!,
-                              style: const TextStyle(color: Colors.red, fontSize: 13),
+                              _isLogin ? t.translate('welcome_back', lang) : t.translate('create_account', lang),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppConstants.primaryBlue,
+                              ),
                               textAlign: TextAlign.center,
                             ),
-                          ],
-                          const SizedBox(height: AppConstants.largePadding),
-                          ElevatedButton(
-                            onPressed: _isLoading ? null : _handleAuth,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppConstants.primaryOrange,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                            const SizedBox(height: 32),
+                            TextFormField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                labelText: t.translate('email', lang),
+                                prefixIcon: const Icon(Icons.email_outlined),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide.none,
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) return 'Veuillez entrer votre email';
+                                if (!value.contains('@')) return 'Email invalide';
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: t.translate('password', lang),
+                                prefixIcon: const Icon(Icons.lock_outline),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide.none,
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) return 'Veuillez entrer votre mot de passe';
+                                if (value.length < 6) return 'Au moins 6 caractères';
+                                return null;
+                              },
+                            ),
+                            if (_errorMessage != null) ...[
+                              const SizedBox(height: 16),
+                              Text(
+                                _errorMessage!,
+                                style: const TextStyle(color: Colors.red, fontSize: 13),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                            const SizedBox(height: 32),
+                            ElevatedButton(
+                              onPressed: _isLoading ? null : _handleAuth,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppConstants.primaryOrange,
+                                padding: const EdgeInsets.symmetric(vertical: 18),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      _isLogin ? t.translate('login', lang) : t.translate('signup', lang),
+                                      style: const TextStyle(letterSpacing: 1.2, fontWeight: FontWeight.bold),
+                                    ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextButton(
+                              onPressed: _isLoading ? null : () => setState(() {
+                                _isLogin = !_isLogin;
+                                _errorMessage = null;
+                              }),
+                              child: Text(
+                                _isLogin ? t.translate('no_account', lang) : t.translate('already_account', lang),
+                                style: const TextStyle(color: AppConstants.primaryBlue),
                               ),
                             ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : Text(
-                                    _isLogin ? 'SE CONNECTER' : 'S\'INSCRIRE',
-                                    style: const TextStyle(letterSpacing: 1.2),
-                                  ),
-                          ),
-                          const SizedBox(height: AppConstants.smallPadding),
-                          TextButton(
-                            onPressed: _isLoading
-                                ? null
-                                : () {
-                                    setState(() {
-                                      _isLogin = !_isLogin;
-                                      _errorMessage = null;
-                                    });
-                                  },
-                            child: Text(
-                              _isLogin
-                                  ? 'Pas encore de compte ? S\'inscrire'
-                                  : 'Déjà un compte ? Se connecter',
-                              style: const TextStyle(color: AppConstants.primaryBlue),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -292,7 +325,72 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LanguageSelectorBottomSheet extends StatelessWidget {
+  final Language currentLanguage;
+  final Function(Language) onLanguageChanged;
+
+  const _LanguageSelectorBottomSheet({
+    required this.currentLanguage,
+    required this.onLanguageChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = TranslationService();
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 12),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              t.translate('choose_language', currentLanguage),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: AppConstants.primaryBlue,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+          ...Language.values.map((language) => ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+            leading: Text(language.flag, style: const TextStyle(fontSize: 24)),
+            title: Text(
+              language.displayName,
+              style: TextStyle(
+                fontWeight: language == currentLanguage ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            trailing: language == currentLanguage
+                ? const Icon(Icons.check_circle_rounded, color: AppConstants.primaryBlue)
+                : null,
+            onTap: () {
+              onLanguageChanged(language);
+              Navigator.pop(context);
+            },
+          )),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }
