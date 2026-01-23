@@ -8,3 +8,103 @@
 8:"¿En qué año comenzó la Revolución Francesa?":"1789":"1799":"1769":"1779":rep1:historia:"La Revolución Francesa comenzó en 1789 con la toma de la Bastilla.":2
 9:"¿Cuál es el desierto más grande del mundo?":"Sahara":"Gobi":"Antártida":"Kalahari":rep3:geografia:"La Antártida es el desierto más grande del mundo (desierto frío).":2
 10:"¿Cuántos jugadores en un equipo de fútbol?":"9":"10":"11":"12":rep3:deportes:"Un equipo de fútbol tiene 11 jugadores en el campo.":1
+11:"¿Qué país regaló la Estatua de la Libertad a EE. UU.?":"Francia":"Reino Unido":"Italia":"Alemania":rep1:historia:"Francia regaló la estatua para celebrar el centenario de la independencia de EE. UU.":1
+12:"¿Cuál es el río más largo del mundo?":"Amazonas":"Nilo":"Misisipi":"Yangtsé":rep2:geografia:"El Nilo se considera tradicionalmente el más largo, aunque el Amazonas tiene más volumen.":1
+13:"¿Quién escribió 'Romeo y Julieta'?":"Shakespeare":"Dickens":"Homero":"Twain":rep1:otros:"William Shakespeare escribió esta tragedia a finales del siglo XVI.":1
+14:"¿Cuál es el punto de ebullición del agua?":"90°C":"100°C":"110°C":"120°C":rep2:ciencias:"El agua hierve a 100°C a presión atmosférica estándar.":1
+15:"¿Qué planeta es conocido como el Planeta Rojo?":"Venus":"Marte":"Júpiter":"Saturno":rep2:ciencias:"Marte parece rojo debido al óxido de hierro en su superficie.":1
+16:"¿En qué ciudad se celebran los Juegos Olímpicos de 2024?":"Londres":"Tokio":"París":"Pekín":rep3:deportes:"París es la sede de los Juegos Olímpicos de Verano de 2024.":1
+17:"¿Quién dirigió 'Parque Jurásico'?":"Spielberg":"Scorsese":"Tarantino":"Nolan":rep1:cine:"Steven Spielberg dirigió este clásico de dinosaurios en 1993.":1
+18:"¿Cuál es la capital de Japón?":"Seúl":"Pekín":"Tokio":"Bangkok":rep3:geografia:"Tokio es la capital y la ciudad más poblada de Japón.":1
+19:"¿Qué gas absorben las plantas de la atmósfera?":"Oxígeno":"Nitrógeno":"Dióxido de carbono":"Hidrógeno":rep3:ciencias:"Las plantas absorben CO2 durante la fotosíntesis.":1
+20:"¿Cuál es la raíz cuadrada de 64?":"6":"7":"8":"10":rep3:ciencias:"8 por 8 es igual a 64.":1
+21:"¿Quién es el rey del pop?":"Elvis Presley":"Michael Jackson":"Prince":"Madonna":rep2:musica:"Michael Jackson es mundialmente conocido como el Rey del Pop.":1
+22:"¿En qué continente está el desierto del Sahara?":"Asia":"África":"América del Sur":"Australia":rep2:geografia:"El Sahara es el desierto cálido más grande, ubicado en el norte de África.":1
+23:"¿Quién fue el primer hombre en caminar sobre la luna?":"Yuri Gagarin":"Neil Armstrong":"Buzz Aldrin":"John Glenn":rep2:historia:"Neil Armstrong fue el primero en 1969.":1
+24:"¿Cuál es el mamífero más grande del mundo?":"Elefante":"Ballena azul":"Jirafa":"Tiburón":rep2:ciencias:"La ballena azul puede alcanzar más de 30 metros de longitud.":1
+25:"¿Qué país ganó el Mundial de 2022?":"Francia":"Argentina":"Croacia":"Brasil":rep2:deportes:"Argentina ganó contra Francia en una final histórica.":1
+26:"¿Cuántas cuerdas tiene una guitarra estándar?":"4":"5":"6":"12":rep3:musica:"Una guitarra estándar tiene 6 cuerdas (Mi-La-Re-Sol-Si-Mi).":1
+27:"¿Qué elemento tiene el símbolo 'O'?":"Oro":"Plata":"Oxígeno":"Hierro":rep3:ciencias:"O es el símbolo del oxígeno.":1
+28:"¿Quién descubrió la gravedad?":"Einstein":"Newton":"Galileo":"Tesla":rep2:ciencias:"Sir Isaac Newton formuló las leyes del movimiento y la gravitación universal.":1
+29:"¿Cuál es la moneda del Reino Unido?":"Euro":"Dólar":"Libra":"Yen":rep3:otros:"La libra esterlina (£) es la moneda oficial.":1
+30:"¿Cuántos continentes hay?":"5":"6":"7":"8":rep3:geografia:"Los 7 continentes son África, Antártida, Asia, Europa, N. América, S. América y Oceanía.":1
+31:"¿Qué película ganó el Óscar a la mejor película en 2023?":"Top Gun":"Elvis":"Todo a la vez en todas partes":"Avatar":rep3:cine:"Esta película ganó 7 Óscars, incluyendo Mejor Película.":2
+32:"¿Quién es el autor de 'Harry Potter'?":"J.K. Rowling":"Stephen King":"George R.R. Martin":"Roald Dahl":rep1:otros:"J.K. Rowling escribió la serie de 7 libros.":1
+33:"¿Cuál es el animal terrestre más rápido?":"León":"Guepardo":"Leopardo":"Caballo":rep2:ciencias:"El guepardo puede alcanzar velocidades de 110 km/h.":1
+34:"¿Qué ciudad es conocida como la Gran Manzana?":"Los Ángeles":"Chicago":"Nueva York":"Miami":rep3:geografia:"Nueva York ha usado este apodo desde la década de 1920.":1
+35:"¿Cuántos colores tiene el arcoíris?":"5":"6":"7":"8":rep3:otros:"Rojo, naranja, amarillo, verde, azul, añil y violeta.":1
+36:"¿Quién fue el primer presidente de los EE. UU.?":"Lincoln":"Jefferson":"Washington":"Roosevelt":rep3:historia:"George Washington fue el primer presidente de 1789 a 1797.":1
+37:"¿En qué año se hundió el Titanic?":"1905":"1912":"1920":"1930":rep2:historia:"El Titanic chocó con un iceberg el 14 de abril de 1912.":2
+38:"¿Cuál es la capital de Italia?":"Milán":"Nápoles":"Roma":"Venecia":rep3:geografia:"Roma es conocida como la Ciudad Eterna.":1
+39:"¿Qué instrumento tiene 88 teclas?":"Violín":"Flauta":"Piano":"Batería":rep3:musica:"Un piano estándar tiene 52 teclas blancas y 36 teclas negras.":1
+40:"¿Cuál es el ingrediente principal del guacamole?":"Tomate":"Cebolla":"Aguacate":"Pimiento":rep3:otros:"El guacamole es una salsa a base de aguacate originaria de México.":1
+41:"¿Qué deporte usa el término 'Love' para cero?":"Golf":"Tenis":"Fútbol":"Baloncesto":rep2:deportes:"En el tenis, 'Love' significa cero puntos.":1
+42:"¿Quién pintó el techo de la Capilla Sixtina?":"Leonardo da Vinci":"Miguel Ángel":"Picasso":"Dalí":rep2:historia:"Miguel Ángel pintó el techo entre 1508 y 1512.":2
+43:"¿Cuál es el país más grande del mundo por área?":"EE. UU.":"China":"Rusia":"Canadá":rep3:geografia:"Rusia cubre más de 17 millones de kilómetros cuadrados.":1
+44:"¿Qué planeta está más cerca del Sol?":"Tierra":"Venus":"Mercurio":"Marte":rep3:ciencias:"Mercurio es el planeta más pequeño y cercano al Sol.":1
+45:"En 'El Rey León', ¿cómo se llama el padre de Simba?":"Scar":"Mufasa":"Timón":"Pumba":rep2:cine:"Mufasa es el rey que es asesinado por Scar.":1
+46:"¿Cómo se llama la capa exterior dura de un diente?":"Esmalte":"Dentina":"Pulpa":"Encía":rep1:ciencias:"El esmalte es la sustancia más dura del cuerpo humano.":2
+47:"¿Quién es el cantante principal de U2?":"Sting":"Bono":"Mick Jagger":"David Bowie":rep2:musica:"Bono ha sido el cantante principal desde 1976.":1
+48:"¿Qué país es famoso por las pirámides de Giza?":"Grecia":"Egipto":"México":"Perú":rep2:geografia:"Las pirámides fueron construidas durante el Reino Antiguo del Antiguo Egipto.":1
+49:"¿Cuál es el idioma más hablado del mundo?":"Inglés":"Español":"Chino":"Hindi":rep3:otros:"El chino mandarín tiene la mayor cantidad de hablantes nativos.":2
+50:"¿Cuántas patas tiene una araña?":"6":"8":"10":"12":rep2:ciencias:"Las arañas son arácnidos y tienen 8 patas.":1
+51:"¿Qué empresa fabrica el iPhone?":"Microsoft":"Google":"Apple":"Samsung":rep3:otros:"Apple lanzó el primer iPhone en 2007.":1
+52:"¿En qué año terminó la Segunda Guerra Mundial?":"1940":"1945":"1950":"1955":rep2:historia:"La guerra terminó en septiembre de 1945.":1
+53:"¿Cuál es la capital de España?":"Barcelona":"Madrid":"Sevilla":"Valencia":rep2:geografia:"Madrid es la capital y la ciudad más grande de España.":1
+54:"¿Quién es el dios nórdico del trueno?":"Odín":"Loki":"Thor":"Freya":rep3:otros:"Thor empuña el martillo Mjolnir.":1
+55:"¿Qué fruta se usa para hacer vino?":"Manzana":"Uva":"Pera":"Naranja":rep2:otros:"Las uvas se fermentan para producir vino.":1
+56:"¿Cuál es la montaña más alta del mundo?":"K2":"Monte Everest":"Kilimanjaro":"Mont Blanc":rep2:geografia:"El Everest tiene 8.848 metros sobre el nivel del mar.":1
+57:"¿Quién escribió 'La Odisea'?":"Platón":"Sócrates":"Homero":"Aristóteles":rep3:historia:"Homero es el legendario autor de la Ilíada y la Odisea.":2
+58:"¿Cuál es el símbolo químico del agua?":"H2O":"CO2":"O2":"NaCl":rep1:ciencias:"H2O representa dos átomos de hidrógeno y uno de oxígeno.":1
+59:"¿Qué océano está entre Europa y América?":"Pacífico":"Atlántico":"Índico":"Ártico":rep2:geografia:"El Océano Atlántico separa el Viejo Mundo del Nuevo Mundo.":1
+60:"¿Quién interpretó a Iron Man en las películas de Marvel?":"Chris Evans":"Chris Hemsworth":"Robert Downey Jr.":"Mark Ruffalo":rep3:cine:"Robert Downey Jr. interpretó a Tony Stark de 2008 a 2019.":1
+61:"¿Cuál es el número primo más pequeño?":"0":"1":"2":"3":rep3:ciencias:"El 2 es el único número primo par.":2
+62:"¿En qué país se encuentra el Taj Mahal?":"India":"Pakistán":"Bangladesh":"Nepal":rep1:geografia:"El Taj Mahal está en Agra, India.":1
+63:"¿Quién es el creador de Facebook?":"Steve Jobs":"Bill Gates":"Mark Zuckerberg":"Elon Musk":rep3:otros:"Zuckerberg fundó Facebook en 2004.":1
+64:"¿Cuántos jugadores hay en una cancha de baloncesto por equipo?":"5":"6":"7":"11":rep1:deportes:"Cada equipo tiene 5 jugadores en la cancha.":1
+65:"¿Cuál es la capital de Alemania?":"Berlín":"Múnich":"Fráncfort":"Hamburgo":rep1:geografia:"Berlín ha sido la capital desde la reunificación en 1990.":1
+66:"¿Qué elemento es necesario para tener huesos fuertes?":"Hierro":"Zinc":"Calcio":"Magnesio":rep3:ciencias:"El calcio es vital para la salud de los huesos.":1
+67:"¿Quién dirigió 'Pulp Fiction'?":"Steven Spielberg":"Quentin Tarantino":"Martin Scorsese":"James Cameron":rep2:cine:"Tarantino ganó un Óscar por el guion de esta película.":2
+68:"¿Cuál es la serie de televisión animada más longeva de EE. UU.?":"Los Simpson":"Padre de familia":"South Park":"Futurama":rep1:cine:"Los Simpson comenzaron en 1989.":1
+69:"¿Qué planeta tiene anillos?":"Marte":"Venus":"Saturno":"Mercurio":rep3:ciencias:"Saturno es famoso por su prominente sistema de anillos.":1
+70:"¿Cuál es la capital de Australia?":"Sídney":"Melbourne":"Camberra":"Perth":rep3:geografia:"Camberra fue elegida como un compromiso entre Sídney y Melbourne.":2
+71:"¿Quién fue la 'Doncella de Orleans'?":"María Antonieta":"Juana de Arco":"María Magdalena":"Catalina de Médici":rep2:historia:"Juana de Arco lideró el ejército francés a los 17 años.":2
+72:"¿Cuál es el órgano interno más grande del cuerpo humano?":"Corazón":"Pulmones":"Hígado":"Cerebro":rep3:ciencias:"El hígado realiza más de 500 funciones vitales.":2
+73:"¿Qué banda escribió 'Hey Jude'?":"The Rolling Stones":"The Beatles":"Led Zeppelin":"Queen":rep2:musica:"The Beatles lanzaron Hey Jude en 1968.":1
+74:"¿Cuál es el idioma oficial de Brasil?":"Español":"Portugués":"Inglés":"Francés":rep2:geografia:"Brasil fue una colonia de Portugal.":1
+75:"¿Cuántos minutos tiene un partido de rugby estándar?":"60":"80":"90":"100":rep2:deportes:"Un partido de rugby union consta de dos tiempos de 40 minutos.":2
+76:"¿Quién inventó la bombilla?":"Tesla":"Edison":"Bell":"Einstein":rep2:historia:"Thomas Edison patentó la primera bombilla comercialmente práctica.":1
+77:"¿Cuál es la capital de Canadá?":"Toronto":"Vancouver":"Ottawa":"Montreal":rep3:geografia:"Ottawa es la capital, ubicada en Ontario.":2
+78:"¿Qué gas es más abundante en la atmósfera terrestre?":"Oxígeno":"Dióxido de carbono":"Nitrógeno":"Argón":rep3:ciencias:"El nitrógeno constituye aproximadamente el 78% de la atmósfera.":2
+79:"¿Quién pintó 'La noche estrellada'?":"Picasso":"Van Gogh":"Monet":"Renoir":rep2:otros:"Vincent van Gogh la pintó mientras estaba en un asilo en 1889.":2
+80:"¿Qué deporte usa un disco (puck)?":"Fútbol":"Baloncesto":"Hockey sobre hielo":"Béisbol":rep3:deportes:"El hockey sobre hielo se juega con un disco de caucho vulcanizado.":1
+81:"¿Cuál es la capital de Grecia?":"Atenas":"Tesalónica":"Esparta":"Creta":rep1:geografia:"Atenas es una de las ciudades más antiguas del mundo.":1
+82:"¿En qué año cayó el Muro de Berlín?":"1985":"1989":"1991":"1995":rep2:historia:"El muro cayó el 9 de noviembre de 1989.":2
+83:"¿Cuál es el ingrediente principal del hummus?":"Lentejas":"Garbanzos":"Frijoles":"Guisantes":rep2:otros:"El hummus se hace con garbanzos cocidos y machacados.":1
+84:"¿Qué empresa desarrolló el sistema operativo Windows?":"Apple":"Google":"Microsoft":"IBM":rep3:otros:"Bill Gates y Paul Allen fundaron Microsoft.":1
+85:"¿Quién es el dios del mar en la mitología griega?":"Zeus":"Hades":"Poseidón":"Apolo":rep3:otros:"Poseidón lleva un tridente.":1
+86:"¿Cuál es la distancia de un maratón?":"21km":"42,195km":"50km":"10km":rep2:deportes:"Un maratón mide exactamente 42,195 kilómetros.":2
+87:"¿Qué órgano bombea sangre por todo el cuerpo?":"Pulmones":"Hígado":"Corazón":"Riñones":rep3:ciencias:"El corazón es una bomba muscular.":1
+88:"¿Quién escribió 'El gran Gatsby'?":"F. Scott Fitzgerald":"Ernest Hemingway":"Mark Twain":"John Steinbeck":rep1:otros:"Fue publicado en 1925.":2
+89:"¿Cuál es la capital de Rusia?":"San Petersburgo":"Moscú":"Kazán":"Sochi":rep2:geografia:"Moscú es la ciudad más grande de Rusia.":1
+90:"¿Qué película presenta al personaje Jack Sparrow?":"Star Wars":"Piratas del Caribe":"Harry Potter":"El Señor de los Anillos":rep2:cine:"Johnny Depp interpretó al famoso pirata.":1
+91:"¿Cuál es el símbolo del elemento Oro?":"Gd":"Go":"Au":"Ag":rep3:ciencias:"Au viene de la palabra latina 'aurum'.":2
+92:"¿Quién es conocido como el padre de la física moderna?":"Newton":"Einstein":"Bohr":"Hawking":rep2:ciencias:"Albert Einstein desarrolló la teoría de la relatividad.":2
+93:"¿De qué país es originario el canguro?":"África":"India":"Australia":"Brasil":rep3:geografia:"Los canguros son indígenas de Australia.":1
+94:"¿Cuántos puntos vale un touchdown en el fútbol americano?":"3":"6":"7":"1":rep2:deportes:"Un touchdown vale 6 puntos.":2
+95:"¿Cuál es la capital de Egipto?":"El Cairo":"Alejandría":"Luxor":"Giza":rep1:geografia:"El Cairo es la ciudad más grande del mundo árabe.":1
+96:"¿Qué planeta tiene más lunas?":"Júpiter":"Saturno":"Marte":"Tierra":rep3:ciencias:"Saturno superó recientemente a Júpiter con más de 140 lunas.":3
+97:"¿Quién era el cantante principal de Queen?":"David Bowie":"Freddie Mercury":"Elton John":"George Michael":rep2:musica:"Freddie Mercury es uno de los mejores cantantes de la historia.":1
+98:"¿Cuál es el planeta más grande de nuestro sistema solar?":"Tierra":"Júpiter":"Saturno":"Neptuno":rep2:ciencias:"Júpiter es más de dos veces más masivo que todos los demás planetas combinados.":1
+99:"¿En qué país se celebraron los Juegos Olímpicos de 2016?":"Brasil":"Reino Unido":"China":"Grecia":rep1:deportes:"Los juegos se celebraron en Río de Janeiro.":2
+100:"¿Cuál es la capital de Corea del Sur?":"Seúl":"Busán":"Incheon":"Pionyang":rep1:geografia:"Seúl es una metrópolis enorme.":1
+101:"¿Quién escribió '1984'?":"Aldous Huxley":"George Orwell":"Ray Bradbury":"H.G. Wells":rep2:historia:"George Orwell lo publicó en 1949.":2
+102:"¿Cuál es el punto de congelación del agua?":"0°C":"-10°C":"32°C":"100°C":rep1:ciencias:"El agua se congela a 0°C al nivel del mar.":1
+103:"¿Qué ciudad tiene la Torre Eiffel?":"Londres":"Berlín":"París":"Roma":rep3:geografia:"La torre fue construida para la Exposición Universal de 1889.":1
+104:"¿Cuántos años hay en una década?":"10":"20":"50":"100":rep1:otros:"Una década es un periodo de 10 años.":1
+105:"¿Qué película es la más taquillera de todos los tiempos?":"Avatar":"Vengadores: Endgame":"Titanic":"Star Wars":rep1:cine:"Avatar (2009) recuperó el primer puesto tras varios reestrenos.":2
+106:"¿Cuál es la capital de Tailandia?":"Hanói":"Bangkok":"Singapur":"Yakarta":rep2:geografia:"Bangkok es conocida por sus templos ornamentados y su vibrante vida callejera.":1
+107:"¿Quién es la diosa de la sabiduría en la mitología griega?":"Hera":"Atenea":"Afrodita":"Ártemis":rep2:otros:"Atenea es también la diosa de la artesanía y la guerra.":2
+108:"¿Qué país tiene más población?":"India":"China":"EE. UU.":"Indonesia":rep1:geografia:"India superó a China en 2023 como el país más poblado.":2
+109:"¿Cuál es la unidad más pequeña de la materia?":"Célula":"Molécula":"Átomo":"Electrón":rep3:ciencias:"Los átomos son los bloques de construcción de la materia.":2
+110:"¿Quién ganó más Óscars en la historia?":"Walt Disney":"Meryl Streep":"Steven Spielberg":"Katharine Hepburn":rep1:cine:"Walt Disney ganó 26 premios de la Academia.":3

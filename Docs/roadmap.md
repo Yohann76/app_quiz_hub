@@ -4,7 +4,6 @@
 
 App:
 - Account must be save in local app (cause: different port use)
-- Complete Quizz file (fr_app_content,en_app_content,es_app_content)
 
 DEPLOY:
 - Export in APK for test android
