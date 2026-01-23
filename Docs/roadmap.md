@@ -4,9 +4,6 @@
 
 App:
 - Account must be save in local app (cause: different port use)
-
-Data:
-- Create parser content CLI dart -> for test all construction content file and detect error before prod
 - Complete Quizz file (fr_app_content,en_app_content,es_app_content)
 
 DEPLOY:

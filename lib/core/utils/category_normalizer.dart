@@ -10,9 +10,9 @@
 /// - Sciences
 /// - Divers
 class CategoryNormalizer {
-  // Mapping des catégories vers les noms français (source de vérité)
+  // Mapping exhaustif pour accepter les catégories dans les 3 langues
   static const Map<String, String> _categoryMapping = {
-    // Français (déjà normalisé)
+    // Français
     'histoire': 'histoire',
     'geographie': 'geographie',
     'cinema': 'cinema',
@@ -47,20 +47,25 @@ class CategoryNormalizer {
     'otros': 'divers',
     'otro': 'divers',
     'diverso': 'divers',
-    
-    // Anciennes catégories (pour compatibilité avec données existantes dans Supabase)
+
+    // Compatibilité
     'general': 'divers',
+    'art': 'cinema',
+    'arte': 'cinema',
     'mathematiques': 'sciences',
     'mathematics': 'sciences',
     'matematicas': 'sciences',
-    'art': 'cinema',
-    'arte': 'cinema',
   };
 
   /// Normalise une catégorie vers son équivalent français
   static String normalize(String category) {
     if (category.isEmpty) return 'divers';
-    return _categoryMapping[category.toLowerCase()] ?? 'divers';
+    final normalized = _categoryMapping[category.toLowerCase()];
+    if (normalized == null) {
+      // En mode debug on pourrait logger ici, mais on replie sur 'divers'
+      return 'divers';
+    }
+    return normalized;
   }
 
   /// Retourne le nom d'affichage français d'une catégorie normalisée
