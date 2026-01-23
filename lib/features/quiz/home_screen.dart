@@ -6,6 +6,7 @@ import '../../shared/services/language_service.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
 import '../../shared/services/database_service.dart';
+import '../../shared/services/quiz_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,12 +17,54 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Language? _currentLanguage;
+  Map<String, dynamic>? _userStats;
+  int _totalQuestionsInAssets = 0;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadCurrentLanguage();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    await _loadCurrentLanguage();
+    await _loadStats();
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authService = AuthService();
+      
+      if (authService.isAuthenticated) {
+        final languageService = LanguageService(prefs);
+        final quizService = QuizService(
+          languageService: languageService,
+          databaseService: DatabaseService(),
+          authService: authService,
+          prefs: prefs,
+        );
+
+        // Charger les stats globales
+        final stats = await quizService.calculateUserStats();
+        
+        // Charger le nombre total de questions disponibles dans les fichiers
+        if (_currentLanguage != null) {
+          final questions = await languageService.loadQuestionsForLanguage(_currentLanguage!);
+          if (mounted) {
+            setState(() {
+              _userStats = stats;
+              _totalQuestionsInAssets = questions.length;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print('Erreur lors du chargement des stats: $e');
+    }
   }
 
   /// Charger la langue depuis Supabase (priorité) ou depuis le cache local
@@ -151,7 +194,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: AppConstants.largePadding * 2),
                 
                 // Statistiques rapides
-                const _QuickStatsRow(),
+                _QuickStatsRow(
+                  stats: _userStats,
+                  totalAvailable: _totalQuestionsInAssets,
+                ),
               ],
             ),
           ),
@@ -175,6 +221,8 @@ class _HomeScreenState extends State<HomeScreen> {
           
           // Sauvegarder dans Supabase et cache local
           await _saveLanguage(language);
+          // Recharger les stats pour la nouvelle langue (total questions)
+          await _loadStats();
         },
       ),
     );
@@ -250,12 +298,23 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _QuickStatsRow extends StatelessWidget {
-  const _QuickStatsRow();
+  final Map<String, dynamic>? stats;
+  final int totalAvailable;
+
+  const _QuickStatsRow({
+    this.stats,
+    required this.totalAvailable,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final totalCorrect = stats?['total_correct_answers'] as int? ?? 0;
+    final totalAnswered = stats?['total_questions'] as int? ?? 0;
+    final accuracy = stats?['average_score'] as double? ?? 0.0;
+    final totalScore = stats?['total_score'] as int? ?? 0;
+
     return Container(
-      padding: const EdgeInsets.all(AppConstants.largePadding),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: AppConstants.largePadding),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
@@ -267,26 +326,32 @@ class _QuickStatsRow extends StatelessWidget {
           ),
         ],
       ),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _StatItem(
             icon: Icons.check_circle_outline_rounded,
-            value: '--',
+            value: totalCorrect.toString(),
             label: 'Correctes',
             color: Colors.green,
           ),
           _StatItem(
-            icon: Icons.help_outline_rounded,
-            value: '--',
-            label: 'Total',
+            icon: Icons.quiz_outlined,
+            value: '$totalAnswered/$totalAvailable',
+            label: 'Questions',
             color: AppConstants.primaryBlue,
           ),
           _StatItem(
             icon: Icons.bolt_rounded,
-            value: '--%',
+            value: '${accuracy.toStringAsFixed(0)}%',
             label: 'Précision',
             color: AppConstants.primaryOrange,
+          ),
+          _StatItem(
+            icon: Icons.stars_rounded,
+            value: totalScore.toString(),
+            label: 'Score',
+            color: Colors.purple,
           ),
         ],
       ),
