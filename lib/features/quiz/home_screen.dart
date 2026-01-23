@@ -92,122 +92,67 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppConstants.appName),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(AppConstants.appName.toUpperCase(), style: const TextStyle(letterSpacing: 2)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.language),
+            icon: const Icon(Icons.language_rounded),
             onPressed: _showLanguageSelector,
-            tooltip: 'Changer de langue',
           ),
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.person_outline_rounded),
             onPressed: () => Navigator.pushNamed(context, '/profile'),
-            tooltip: 'Profil',
           ),
         ],
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFf093fb),
-              Color(0xFFf5576c),
-            ],
-          ),
-        ),
+        color: AppConstants.backgroundLight,
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - 
-                           MediaQuery.of(context).padding.top - 
-                           kToolbarHeight - 
-                           MediaQuery.of(context).padding.bottom,
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  children: [
-                    // En-tête avec la langue actuelle
-                    Container(
-                      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
+            child: Column(
+              children: [
+                // En-tête avec la langue actuelle
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.language_rounded, color: AppConstants.primaryBlue, size: 20),
+                      const SizedBox(width: 10),
+                      Text(
+                        _currentLanguage?.displayName ?? "Non définie",
+                        style: const TextStyle(
+                          color: AppConstants.primaryBlue,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.language,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          const SizedBox(width: AppConstants.smallPadding),
-                          Text(
-                            'Langue actuelle: ${_currentLanguage?.displayName ?? "Non définie"}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: AppConstants.largePadding),
-                    
-                    // Option principale - Démarrer un Quiz
-                    Expanded(
-                      child: Center(
-                        child: _StartQuizOption(
-                          onTap: () => Navigator.pushNamed(context, '/quiz'),
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: AppConstants.largePadding),
-                    
-                    // Statistiques rapides
-                    Container(
-                      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _StatItem(
-                            icon: Icons.check_circle,
-                            value: '0',
-                            label: 'Correctes',
-                            color: Colors.green,
-                          ),
-                          _StatItem(
-                            icon: Icons.quiz,
-                            value: '0',
-                            label: 'Total',
-                            color: Colors.blue,
-                          ),
-                          _StatItem(
-                            icon: Icons.trending_up,
-                            value: '0%',
-                            label: 'Précision',
-                            color: Colors.orange,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                
+                const SizedBox(height: AppConstants.largePadding * 2),
+                
+                // Option principale - Démarrer un Quiz
+                _StartQuizOption(
+                  onTap: () => Navigator.pushNamed(context, '/quiz'),
+                ),
+                
+                const SizedBox(height: AppConstants.largePadding * 2),
+                
+                // Statistiques rapides
+                const _QuickStatsRow(),
+              ],
             ),
           ),
         ),
@@ -304,6 +249,51 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+class _QuickStatsRow extends StatelessWidget {
+  const _QuickStatsRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppConstants.largePadding),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _StatItem(
+            icon: Icons.check_circle_outline_rounded,
+            value: '--',
+            label: 'Correctes',
+            color: Colors.green,
+          ),
+          _StatItem(
+            icon: Icons.help_outline_rounded,
+            value: '--',
+            label: 'Total',
+            color: AppConstants.primaryBlue,
+          ),
+          _StatItem(
+            icon: Icons.bolt_rounded,
+            value: '--%',
+            label: 'Précision',
+            color: AppConstants.primaryOrange,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _StartQuizOption extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -316,7 +306,7 @@ class _StartQuizOption extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 160,
-      margin: const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -328,14 +318,14 @@ class _StartQuizOption extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF667eea),
-                  Color(0xFF764ba2),
+                  AppConstants.primaryBlue,
+                  AppConstants.lightBlue,
                 ],
               ),
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF667eea).withValues(alpha: 0.4),
+                  color: AppConstants.primaryBlue.withOpacity(0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -399,25 +389,29 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(
-          icon,
-          color: color,
-          size: 24,
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 24),
         ),
-        const SizedBox(height: AppConstants.smallPadding),
+        const SizedBox(height: 8),
         Text(
           value,
           style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
+            color: Colors.black87,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.8),
+            color: Colors.grey[600],
             fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],

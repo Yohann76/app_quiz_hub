@@ -211,144 +211,181 @@ class _QuizScreenState extends State<QuizScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiz'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('QUIZ', style: TextStyle(letterSpacing: 2)),
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Score: $_sessionScore',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppConstants.primaryOrange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.star_rounded, color: AppConstants.primaryOrange, size: 20),
+                const SizedBox(width: 4),
+                Text(
+                  '$_sessionScore',
+                  style: const TextStyle(
+                    color: AppConstants.primaryOrange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
-                  Text(
-                    '$_correctAnswers/$_totalAnswered',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
-            ],
-          ),
-        ),
+        color: AppConstants.backgroundLight,
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Question
-                Card(
-                  elevation: 8,
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _currentQuestion!.questionText,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+          child: Column(
+            children: [
+              // Barre de progression
+              LinearProgressIndicator(
+                value: _totalAnswered / 20, // Exemple pour 20 questions
+                backgroundColor: Colors.grey[200],
+                valueColor: const AlwaysStoppedAnimation<Color>(AppConstants.primaryBlue),
+                minHeight: 6,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppConstants.largePadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Question Card
+                      Container(
+                        padding: const EdgeInsets.all(AppConstants.largePadding),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppConstants.primaryBlue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _currentQuestion!.category.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppConstants.primaryBlue,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _currentQuestion!.questionText,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+        
+                      const SizedBox(height: AppConstants.largePadding * 1.5),
+        
+                      // Réponses
+                      ...List.generate(
+                        _currentQuestion!.responses.length,
+                        (index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _AnswerButton(
+                            text: _currentQuestion!.responses[index],
+                            isSelected: _selectedAnswerIndex == index,
+                            isCorrect: _currentQuestion!.correctResponseIndex == index,
+                            showResult: _showResult,
+                            onTap: () => _selectAnswer(index),
                           ),
                         ),
-                        const SizedBox(height: AppConstants.smallPadding),
-                        Text(
-                          'Catégorie: ${_currentQuestion!.category}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
+                      ),
+        
+                      // Note explicative
+                      if (_showResult) ...[
+                        const SizedBox(height: AppConstants.largePadding),
+                        AnimatedOpacity(
+                          opacity: 1.0,
+                          duration: const Duration(milliseconds: 500),
+                          child: Container(
+                            padding: const EdgeInsets.all(AppConstants.largePadding),
+                            decoration: BoxDecoration(
+                              color: _currentQuestion!.isCorrect(_selectedAnswerIndex!)
+                                  ? Colors.green.withOpacity(0.1)
+                                  : Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                              border: Border.all(
+                                color: _currentQuestion!.isCorrect(_selectedAnswerIndex!)
+                                    ? Colors.green.withOpacity(0.3)
+                                    : Colors.red.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      _currentQuestion!.isCorrect(_selectedAnswerIndex!)
+                                          ? Icons.check_circle_rounded
+                                          : Icons.error_rounded,
+                                      color: _currentQuestion!.isCorrect(_selectedAnswerIndex!)
+                                          ? Colors.green
+                                          : Colors.red,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _currentQuestion!.isCorrect(_selectedAnswerIndex!)
+                                          ? 'EXCELLENT !'
+                                          : 'PAS TOUT À FAIT...',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w900,
+                                        color: _currentQuestion!.isCorrect(_selectedAnswerIndex!)
+                                            ? Colors.green
+                                            : Colors.red,
+                                        letterSpacing: 1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  _currentQuestion!.note,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.grey[800],
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
-
-                const SizedBox(height: AppConstants.largePadding),
-
-                // Réponses
-                ...List.generate(
-                  _currentQuestion!.responses.length,
-                  (index) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppConstants.defaultPadding),
-                    child: _AnswerButton(
-                      text: _currentQuestion!.responses[index],
-                      isSelected: _selectedAnswerIndex == index,
-                      isCorrect: _currentQuestion!.correctResponseIndex == index,
-                      showResult: _showResult,
-                      onTap: () => _selectAnswer(index),
-                    ),
-                  ),
-                ),
-
-                // Note explicative (affichée après la réponse)
-                if (_showResult) ...[
-                  const SizedBox(height: AppConstants.largePadding),
-                  Card(
-                    color: Colors.blue[50],
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                _currentQuestion!.isCorrect(_selectedAnswerIndex!)
-                                    ? Icons.check_circle
-                                    : Icons.cancel,
-                                color: _currentQuestion!.isCorrect(_selectedAnswerIndex!)
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                              const SizedBox(width: AppConstants.smallPadding),
-                              Text(
-                                _currentQuestion!.isCorrect(_selectedAnswerIndex!)
-                                    ? 'Bonne réponse !'
-                                    : 'Mauvaise réponse',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: _currentQuestion!.isCorrect(_selectedAnswerIndex!)
-                                      ? Colors.green
-                                      : Colors.red,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: AppConstants.defaultPadding),
-                          Text(
-                            _currentQuestion!.note,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -373,60 +410,59 @@ class _AnswerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color? backgroundColor;
-    Color? textColor;
-    IconData? icon;
+    Color backgroundColor = Colors.white;
+    Color borderColor = Colors.grey.withOpacity(0.2);
+    Color textColor = Colors.black87;
+    double elevation = 0;
 
     if (showResult) {
       if (isCorrect) {
         backgroundColor = Colors.green;
+        borderColor = Colors.green;
         textColor = Colors.white;
-        icon = Icons.check_circle;
-      } else if (isSelected && !isCorrect) {
+      } else if (isSelected) {
         backgroundColor = Colors.red;
+        borderColor = Colors.red;
         textColor = Colors.white;
-        icon = Icons.cancel;
-      } else {
-        backgroundColor = Colors.grey[300];
-        textColor = Colors.black87;
       }
-    } else {
-      backgroundColor = isSelected ? Colors.blue : Colors.white;
-      textColor = isSelected ? Colors.white : Colors.black87;
+    } else if (isSelected) {
+      backgroundColor = AppConstants.primaryBlue.withOpacity(0.1);
+      borderColor = AppConstants.primaryBlue;
+      textColor = AppConstants.primaryBlue;
     }
 
-    return Material(
-      color: backgroundColor,
-      borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-      child: InkWell(
-        onTap: showResult ? null : onTap,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        child: Container(
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            border: Border.all(
-              color: isSelected ? Colors.blue : Colors.grey[300]!,
-              width: 2,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      child: Material(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: showResult ? null : onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: borderColor, width: 2),
             ),
-          ),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                Icon(icon, color: textColor),
-                const SizedBox(width: AppConstants.smallPadding),
-              ],
-              Expanded(
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: textColor,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: textColor,
+                    ),
                   ),
                 ),
-              ),
-            ],
+                if (showResult && isCorrect)
+                  const Icon(Icons.check_circle_rounded, color: Colors.white),
+                if (showResult && isSelected && !isCorrect)
+                  const Icon(Icons.cancel_rounded, color: Colors.white),
+              ],
+            ),
           ),
         ),
       ),

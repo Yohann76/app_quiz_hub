@@ -122,11 +122,11 @@ class _AuthScreenState extends State<AuthScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
+              AppConstants.primaryBlue,
+              AppConstants.lightBlue,
             ],
           ),
         ),
@@ -139,118 +139,152 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.quiz,
-                      size: 80,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(height: AppConstants.defaultPadding),
-                    Text(
-                      AppConstants.appName,
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.lightbulb_rounded,
+                        size: 64,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: AppConstants.largePadding * 2),
-                    Card(
-                      elevation: 8,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                    const SizedBox(height: AppConstants.largePadding),
+                    Text(
+                      AppConstants.appName.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: 2,
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppConstants.largePadding),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
+                    ),
+                    const SizedBox(height: AppConstants.largePadding * 2),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(AppConstants.largePadding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            _isLogin ? 'Bon retour !' : 'Créer un compte',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: AppConstants.primaryBlue,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: AppConstants.largePadding),
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              prefixIcon: const Icon(Icons.email_outlined),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Veuillez entrer votre email';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Email invalide';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: AppConstants.defaultPadding),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: 'Mot de passe',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Veuillez entrer votre mot de passe';
+                              }
+                              if (value.length < 6) {
+                                return 'Le mot de passe doit contenir au moins 6 caractères';
+                              }
+                              return null;
+                            },
+                          ),
+                          if (_errorMessage != null) ...[
+                            const SizedBox(height: AppConstants.defaultPadding),
                             Text(
-                              _isLogin ? 'Connexion' : 'Inscription',
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              _errorMessage!,
+                              style: const TextStyle(color: Colors.red, fontSize: 13),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: AppConstants.defaultPadding),
-                            TextFormField(
-                              controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
-                                prefixIcon: Icon(Icons.email),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Veuillez entrer votre email';
-                                }
-                                if (!value.contains('@')) {
-                                  return 'Email invalide';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: AppConstants.defaultPadding),
-                            TextFormField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              decoration: const InputDecoration(
-                                labelText: 'Mot de passe',
-                                prefixIcon: Icon(Icons.lock),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Veuillez entrer votre mot de passe';
-                                }
-                                if (value.length < 6) {
-                                  return 'Le mot de passe doit contenir au moins 6 caractères';
-                                }
-                                return null;
-                              },
-                            ),
-                            if (_errorMessage != null) ...[
-                              const SizedBox(height: AppConstants.defaultPadding),
-                              Container(
-                                padding: const EdgeInsets.all(AppConstants.smallPadding),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-                                ),
-                                child: Text(
-                                  _errorMessage!,
-                                  style: const TextStyle(color: Colors.red),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ],
-                            const SizedBox(height: AppConstants.defaultPadding),
-                            ElevatedButton(
-                              onPressed: _isLoading ? null : _handleAuth,
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    )
-                                  : Text(_isLogin ? 'Se connecter' : 'S\'inscrire'),
-                            ),
-                            TextButton(
-                              onPressed: _isLoading
-                                  ? null
-                                  : () {
-                                      setState(() {
-                                        _isLogin = !_isLogin;
-                                        _errorMessage = null;
-                                      });
-                                    },
-                              child: Text(
-                                _isLogin
-                                    ? 'Pas encore de compte ? S\'inscrire'
-                                    : 'Déjà un compte ? Se connecter',
-                              ),
-                            ),
                           ],
-                        ),
+                          const SizedBox(height: AppConstants.largePadding),
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _handleAuth,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppConstants.primaryOrange,
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    _isLogin ? 'SE CONNECTER' : 'S\'INSCRIRE',
+                                    style: const TextStyle(letterSpacing: 1.2),
+                                  ),
+                          ),
+                          const SizedBox(height: AppConstants.smallPadding),
+                          TextButton(
+                            onPressed: _isLoading
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _isLogin = !_isLogin;
+                                      _errorMessage = null;
+                                    });
+                                  },
+                            child: Text(
+                              _isLogin
+                                  ? 'Pas encore de compte ? S\'inscrire'
+                                  : 'Déjà un compte ? Se connecter',
+                              style: const TextStyle(color: AppConstants.primaryBlue),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

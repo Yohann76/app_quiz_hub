@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class AppConstants {
   // App Information
   static const String appName = 'Quiz Hub';
@@ -20,11 +22,19 @@ class AppConstants {
   static const int maxDifficulty = 5;
   static const Duration questionTimeLimit = Duration(seconds: 30);
   
+  // UI Colors
+  static const Color primaryBlue = Color(0xFF4A90E2);
+  static const Color lightBlue = Color(0xFF7BAAF7);
+  static const Color primaryOrange = Color(0xFFF5A623);
+  static const Color darkOrange = Color(0xFFD67E17);
+  static const Color backgroundLight = Color(0xFFF8FAFC);
+
   // UI Constants
   static const double defaultPadding = 16.0;
   static const double smallPadding = 8.0;
   static const double largePadding = 24.0;
-  static const double borderRadius = 12.0;
+  static const double borderRadius = 24.0; // Plus arrondi pour un look moderne
+  static const double cardElevation = 0.0; // Shadows manuelles pour plus de contrôle
   
   // Animation Durations
   static const Duration shortAnimation = Duration(milliseconds: 200);

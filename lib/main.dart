@@ -68,23 +68,48 @@ class QuizHubApp extends StatelessWidget {
     return MaterialApp(
       title: AppConstants.appName,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF667eea),
-          brightness: Brightness.light,
-        ),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppConstants.primaryBlue,
+          primary: AppConstants.primaryBlue,
+          secondary: AppConstants.primaryOrange,
+          surface: Colors.white,
+        ),
+        scaffoldBackgroundColor: AppConstants.backgroundLight,
         appBarTheme: const AppBarTheme(
           centerTitle: true,
           elevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: AppConstants.primaryBlue,
+          titleTextStyle: TextStyle(
+            color: AppConstants.primaryBlue,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        cardTheme: CardThemeData(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+            side: BorderSide(color: Colors.grey.withOpacity(0.1)),
+          ),
+          color: Colors.white,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
+            backgroundColor: AppConstants.primaryOrange,
+            foregroundColor: Colors.white,
+            elevation: 0,
             padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.defaultPadding,
-              vertical: AppConstants.smallPadding,
+              horizontal: AppConstants.largePadding,
+              vertical: AppConstants.defaultPadding,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -230,11 +255,11 @@ class _SplashScreenState extends State<SplashScreen>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
+              AppConstants.primaryBlue,
+              AppConstants.lightBlue,
             ],
           ),
         ),
@@ -253,15 +278,15 @@ class _SplashScreenState extends State<SplashScreen>
                       Container(
                         padding: const EdgeInsets.all(AppConstants.largePadding),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(80),
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.3),
+                            color: Colors.white.withOpacity(0.3),
                             width: 2,
                           ),
                         ),
                         child: const Icon(
-                          Icons.quiz,
+                          Icons.lightbulb_rounded,
                           size: 80,
                           color: Colors.white,
                         ),
@@ -271,12 +296,12 @@ class _SplashScreenState extends State<SplashScreen>
                       
                       // Nom de l'app
                       Text(
-                        AppConstants.appName,
+                        AppConstants.appName.toUpperCase(),
                         style: const TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 40,
+                          fontWeight: FontWeight.w900,
                           color: Colors.white,
-                          letterSpacing: 2,
+                          letterSpacing: 4,
                         ),
                       ),
                       
@@ -284,14 +309,16 @@ class _SplashScreenState extends State<SplashScreen>
                       
                       // Sous-titre
                       Text(
-                        'Votre hub de quiz de culture générale',
+                        'DÉFIEZ VOTRE ESPRIT',
                         style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.8),
+                          letterSpacing: 2,
                         ),
                       ),
                       
-                      const SizedBox(height: AppConstants.largePadding * 2),
+                      const SizedBox(height: AppConstants.largePadding * 3),
                       
                       // Indicateur de chargement
                       const CircularProgressIndicator(
