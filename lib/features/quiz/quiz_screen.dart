@@ -26,12 +26,14 @@ class _QuizScreenState extends State<QuizScreen> {
   bool _showResult = false;
   bool _isLoading = true;
   bool _isSaving = false;
-  int _correctAnswers = 0;
-  int _totalAnswered = 0;
-  int _sessionScore = 0; // Score de la session : 5 points par bonne réponse
   Timer? _autoSkipTimer;
 
   late QuizService _quizService;
+  // Stats du compte (Supabase), pas de la session
+  int _accountScore = 0;
+  int _accountCorrect = 0;
+  int _accountTotalAnswered = 0;
+  int _totalQuestionsAvailable = 1; // pour la barre de progression
 
   @override
   void initState() {
@@ -74,13 +76,20 @@ class _QuizScreenState extends State<QuizScreen> {
         prefs: prefs,
       );
 
-      // Charger la dernière question non répondue
+      // Charger la dernière question non répondue + total de questions (pour la barre)
+      final allQuestions = await _quizService.loadQuestions(language);
       final question = await _quizService.getLastUnansweredQuestion(language);
+      // Charger les stats du compte (affichées en haut du quiz)
+      final stats = await _quizService.calculateUserStats(language: null);
 
       if (mounted) {
         setState(() {
           _currentLanguage = language;
           _currentQuestion = question;
+          _totalQuestionsAvailable = allQuestions.isEmpty ? 1 : allQuestions.length;
+          _accountScore = (stats['total_score'] as int?) ?? 0;
+          _accountCorrect = (stats['total_correct_answers'] as int?) ?? 0;
+          _accountTotalAnswered = (stats['unique_questions_answered'] as int?) ?? 0;
           _isLoading = false;
         });
       }
@@ -126,23 +135,25 @@ class _QuizScreenState extends State<QuizScreen> {
   Future<void> _selectAnswer(int index) async {
     if (_showResult || _isSaving || _currentQuestion == null) return;
 
+    final isCorrect = _currentQuestion!.isCorrect(index);
+
+    // Mise à jour immédiate des stats affichées (score + correctes / total)
     setState(() {
       _selectedAnswerIndex = index;
       _showResult = true;
       _isSaving = true;
+      _accountScore += isCorrect ? 5 : 0;
+      _accountCorrect += isCorrect ? 1 : 0;
+      _accountTotalAnswered += 1;
     });
 
-    final isCorrect = _currentQuestion!.isCorrect(index);
     if (isCorrect) {
-      _correctAnswers++;
-      _sessionScore += 5; // 5 points par bonne réponse
       AudioService().playSuccess();
     } else {
       AudioService().playError();
     }
-    _totalAnswered++;
 
-    // Sauvegarder la réponse
+    // Sauvegarder la réponse en arrière-plan
     try {
       await _quizService.saveAnswer(
         question: _currentQuestion!,
@@ -160,9 +171,9 @@ class _QuizScreenState extends State<QuizScreen> {
       }
     }
 
-    setState(() {
-      _isSaving = false;
-    });
+    if (mounted) {
+      setState(() => _isSaving = false);
+    }
 
     // Auto-skip après 10 secondes si l'utilisateur ne fait rien
     _autoSkipTimer = Timer(const Duration(seconds: 10), () {
@@ -235,11 +246,11 @@ class _QuizScreenState extends State<QuizScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${t.translate('score', lang)}: $_sessionScore',
+              '${t.translate('score', lang)}: $_accountScore',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
-              '$_correctAnswers/$_totalAnswered ${t.translate('correct_answers', lang).toLowerCase()}',
+              '$_accountCorrect/$_accountTotalAnswered ${t.translate('correct_answers', lang).toLowerCase()}',
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
@@ -265,7 +276,9 @@ class _QuizScreenState extends State<QuizScreen> {
             child: Column(
               children: [
                 LinearProgressIndicator(
-                  value: _totalAnswered / 20,
+                  value: _totalQuestionsAvailable <= 0
+                      ? 0.0
+                      : (_accountTotalAnswered / _totalQuestionsAvailable).clamp(0.0, 1.0),
                   backgroundColor: Colors.grey[200],
                   valueColor: const AlwaysStoppedAnimation<Color>(AppConstants.primaryBlue),
                   minHeight: 4,

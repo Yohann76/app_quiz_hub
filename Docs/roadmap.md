@@ -2,18 +2,14 @@
 
 ## V1 
 
-App:
-- Account must be save in local app (cause: different port use)
-
-DEPLOY:
-- Export in APK for test android
-- Fix bug APK
-- Create store account
-
 ## V2
 
+General: 
+- Update design 
+
+
 Onboearding
-- Improve speed account setup 
+- Improve speed account setup (google connect)
 
 Payment:
 - By default pub each 20 question (20 in a config constant file, later 15 question...)
@@ -21,8 +17,6 @@ Payment:
 
 ## Deploy
 
-- Create new branch in database (branch production)
-- Create account for play store and deploy
 - Find 15 user for test this app
 
 ## Define the objective
@@ -31,8 +25,8 @@ The objective of this application is to create an Android and iOS general knowle
 
 ## Storage (Supabase)
 
-The questions/Answers/Score are saved locally (???)
-The login and the saving of scores are stored on Supabase
+- User (in supabase)
+- Response (in supabase)
 
 ## Data file Example
 
