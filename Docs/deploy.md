@@ -13,7 +13,9 @@ SUPABASE_URL=https://votre-projet.supabase.co
 SUPABASE_ANON_KEY=votre_cle_anon_publique
 ```
 
-### config.json
+### config.json (obligatoire pour l’APK)
+
+Sur téléphone, l’app ne voit pas vos fichiers `.env` (ils ne sont pas dans l’APK). Elle lit **uniquement** `assets/config.json`. Sans ce fichier rempli, l’app reste sur un écran blanc après le splash.
 
 Dans `assets/`, créez ou éditez `config.json` à partir de `assets/config.json.example` :
 

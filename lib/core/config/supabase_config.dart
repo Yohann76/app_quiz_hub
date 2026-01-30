@@ -4,95 +4,68 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Configuration Supabase
-/// 
-/// Solution hybride qui fonctionne sur Web et Android :
-/// - Web : charge depuis assets/config.json
-/// - Android : charge depuis .env.local ou .env
-/// 
-/// Pour obtenir vos clés Supabase :
-/// 1. Allez sur https://supabase.com/dashboard
-/// 2. Sélectionnez votre projet (app_quizz_hub)
-/// 3. Allez dans Settings > API
-/// 4. Copiez l'URL du projet et la clé anon (publique)
-/// 
-/// Configuration :
-/// - Pour Android : Créez un fichier .env.local avec SUPABASE_URL et SUPABASE_ANON_KEY
-/// - Pour Web : Créez un fichier assets/config.json à partir de assets/config.json.example
+///
+/// Pour l'APK sur téléphone : tout vient de assets/config.json (inclus dans l'app).
+/// Les fichiers .env ne sont pas embarqués dans l'APK, donc on charge config.json
+/// sur toutes les plateformes en priorité.
+///
+/// Ordre : 1) config.json (assets)  2) .env en secours (dev local)
 class SupabaseConfig {
-  static Map<String, dynamic>? _webConfig;
-  static bool _webConfigLoaded = false;
+  static Map<String, dynamic>? _assetConfig;
+  static bool _assetConfigLoaded = false;
 
-  /// Charger la configuration depuis config.json (pour le web)
-  static Future<void> loadWebConfig() async {
-    if (kIsWeb && !_webConfigLoaded) {
-      try {
-        final String jsonString = await rootBundle.loadString('assets/config.json');
-        _webConfig = json.decode(jsonString) as Map<String, dynamic>;
-        _webConfigLoaded = true;
-      } catch (e) {
-        if (kDebugMode) {
-          print('Avertissement: Impossible de charger assets/config.json: $e');
-        }
-        _webConfig = null;
-        _webConfigLoaded = true;
+  /// Charge config.json depuis les assets (toutes plateformes, y compris Android).
+  static Future<void> loadConfig() async {
+    if (_assetConfigLoaded) return;
+    _assetConfigLoaded = true;
+    try {
+      final String jsonString = await rootBundle.loadString('assets/config.json');
+      _assetConfig = json.decode(jsonString) as Map<String, dynamic>;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Avertissement: Impossible de charger assets/config.json: $e');
       }
+      _assetConfig = null;
     }
   }
 
-  /// URL de votre projet Supabase
+  static String? _urlFromAssetConfig() {
+    if (_assetConfig == null) return null;
+    final v = _assetConfig!['supabase_url'] as String?;
+    return (v != null && v.isNotEmpty && v != 'YOUR_SUPABASE_URL') ? v : null;
+  }
+
+  static String? _anonKeyFromAssetConfig() {
+    if (_assetConfig == null) return null;
+    final v = _assetConfig!['supabase_anon_key'] as String?;
+    return (v != null && v.isNotEmpty && v != 'YOUR_SUPABASE_ANON_KEY') ? v : null;
+  }
+
+  static String? _urlFromEnv() {
+    final v = dotenv.env['SUPABASE_URL'];
+    if (v == null || v.isEmpty || v == 'YOUR_SUPABASE_URL') return null;
+    return v;
+  }
+
+  static String? _anonKeyFromEnv() {
+    final v = dotenv.env['SUPABASE_ANON_KEY'];
+    if (v == null || v.isEmpty || v == 'YOUR_SUPABASE_ANON_KEY') return null;
+    return v;
+  }
+
   static String get supabaseUrl {
-    // Sur le web, charger depuis config.json
-    if (kIsWeb) {
-      if (_webConfig != null) {
-        final url = _webConfig!['supabase_url'] as String?;
-        if (url != null && url.isNotEmpty && url != 'YOUR_SUPABASE_URL') {
-          return url;
-        }
-      }
-      throw Exception(
-        'SUPABASE_URL n\'est pas défini dans assets/config.json\n'
-        'Créez assets/config.json à partir de assets/config.json.example et remplissez les valeurs.'
-      );
-    }
-    
-    // Sur Android/iOS/Desktop, charger depuis .env
-    final url = dotenv.env['SUPABASE_URL'];
-    if (url != null && url.isNotEmpty && url != 'YOUR_SUPABASE_URL') {
-      return url;
-    }
-    
+    final v = _urlFromAssetConfig() ?? _urlFromEnv();
+    if (v != null) return v;
     throw Exception(
-      'SUPABASE_URL n\'est pas défini dans le fichier .env.local ou .env\n'
-      'Créez un fichier .env.local avec SUPABASE_URL=votre_url_supabase'
+      'SUPABASE_URL non configuré. Remplissez assets/config.json (obligatoire pour l\'APK).'
     );
   }
 
-  /// Clé publique (anon) de votre projet Supabase
   static String get supabaseAnonKey {
-    // Sur le web, charger depuis config.json
-    if (kIsWeb) {
-      if (_webConfig != null) {
-        final key = _webConfig!['supabase_anon_key'] as String?;
-        if (key != null && key.isNotEmpty && key != 'YOUR_SUPABASE_ANON_KEY') {
-          return key;
-        }
-      }
-      throw Exception(
-        'SUPABASE_ANON_KEY n\'est pas défini dans assets/config.json\n'
-        'Créez assets/config.json à partir de assets/config.json.example et remplissez les valeurs.'
-      );
-    }
-    
-    // Sur Android/iOS/Desktop, charger depuis .env
-    final key = dotenv.env['SUPABASE_ANON_KEY'];
-    if (key != null && key.isNotEmpty && key != 'YOUR_SUPABASE_ANON_KEY') {
-      return key;
-    }
-    
+    final v = _anonKeyFromAssetConfig() ?? _anonKeyFromEnv();
+    if (v != null) return v;
     throw Exception(
-      'SUPABASE_ANON_KEY n\'est pas défini dans le fichier .env.local ou .env\n'
-      'Créez un fichier .env.local avec SUPABASE_ANON_KEY=votre_cle_anon'
+      'SUPABASE_ANON_KEY non configuré. Remplissez assets/config.json (obligatoire pour l\'APK).'
     );
   }
 }
-

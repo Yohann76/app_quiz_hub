@@ -18,25 +18,15 @@ import 'shared/services/database_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Charger la configuration selon la plateforme
-  if (kIsWeb) {
-    // Sur le web, charger depuis config.json dans les assets
-    await SupabaseConfig.loadWebConfig();
-  } else {
-    // Sur Android/iOS/Desktop, charger depuis .env.local ou .env
+  // config.json (assets) = utilisé sur toutes les plateformes, y compris Android/APK
+  // (les .env ne sont pas inclus dans l'APK, donc sans ça écran blanc sur téléphone)
+  await SupabaseConfig.loadConfig();
+  try {
+    await dotenv.load(fileName: ".env.local");
+  } catch (_) {
     try {
-      await dotenv.load(fileName: ".env.local");
-    } catch (_) {
-      try {
-        await dotenv.load(fileName: ".env");
-      } catch (e) {
-        // Si aucun fichier n'existe, on continue quand même
-        // Les erreurs seront gérées par SupabaseConfig si les valeurs sont manquantes
-        if (kDebugMode) {
-          print('Avertissement: Fichier .env non trouvé. Assurez-vous de créer .env.local avec vos clés Supabase.');
-        }
-      }
-    }
+      await dotenv.load(fileName: ".env");
+    } catch (_) {}
   }
   
   // Initialiser Supabase
