@@ -1,6 +1,6 @@
 {
-    "name": "app_quiz_hub",
-    "short_name": "app_quiz_hub",
+    "name": "World Quizz Hub",
+    "short_name": "World Quizz Hub",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

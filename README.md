@@ -1,4 +1,4 @@
-# app_quiz_hub
+# app_quiz_hub (World Quizz Hub)
 
 ## Technologies: 
 
@@ -12,7 +12,7 @@ Project:
 $ cd app_quiz_hub
 ``` 
 
-## configuration
+## Configuration
 
 ```
 Create your app_quiz_hub/.env.local (from .env.example)
@@ -21,19 +21,19 @@ Create your app_quiz_hub/assets/config.json (from config.json.example)
 
 ## Build app 
 
-###  build android 
+### Build android 
 
 ``` 
 $ flutter run -d android   (need android studio)
 ``` 
 
-### build chrome  
+### Build chrome  
 
 ``` 
 $ flutter run -d chrome (http://localhost:55424/, http://localhost:61228/)
 ``` 
 
-### build Web server on linux 
+### Build Web server on linux 
 
 ```
 flutter run -d web-server --web-port 3000

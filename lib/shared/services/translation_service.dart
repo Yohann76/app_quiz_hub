@@ -7,7 +7,7 @@ class TranslationService {
 
   static const Map<String, Map<String, String>> _translations = {
     'fr': {
-      'app_name': 'QUIZ HUB',
+      'app_name': 'WORLD QUIZZ HUB',
       'start_quiz': 'DÉMARRER',
       'ready_challenge': 'Prêt pour le défi ?',
       'correct_answers': 'Correctes',
@@ -40,7 +40,7 @@ class TranslationService {
       'already_account': 'Déjà un compte ? Se connecter',
     },
     'en': {
-      'app_name': 'QUIZ HUB',
+      'app_name': 'WORLD QUIZZ HUB',
       'start_quiz': 'START',
       'ready_challenge': 'Ready for the challenge?',
       'correct_answers': 'Correct',
@@ -73,7 +73,7 @@ class TranslationService {
       'already_account': 'Already have an account? Login',
     },
     'es': {
-      'app_name': 'QUIZ HUB',
+      'app_name': 'WORLD QUIZZ HUB',
       'start_quiz': 'EMPEZAR',
       'ready_challenge': '¿Listo para el desafío?',
       'correct_answers': 'Correctas',

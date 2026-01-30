@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppConstants {
   // App Information
-  static const String appName = 'Quiz Hub';
+  static const String appName = 'World Quizz Hub';
   static const String appVersion = '1.0.0';
   
   // Supabase Tables
