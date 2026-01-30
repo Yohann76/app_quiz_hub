@@ -284,14 +284,21 @@ class _SplashScreenState extends State<SplashScreen>
                       
                       const SizedBox(height: AppConstants.largePadding),
                       
-                      // Nom de l'app
-                      Text(
-                        AppConstants.appName.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: 4,
+                      // Nom de l'app : centré, adapté aux petits écrans
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            AppConstants.appName.toUpperCase(),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 3,
+                            ),
+                          ),
                         ),
                       ),
                       
@@ -300,6 +307,7 @@ class _SplashScreenState extends State<SplashScreen>
                       // Sous-titre
                       Text(
                         'DÉFIEZ VOTRE ESPRIT',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
