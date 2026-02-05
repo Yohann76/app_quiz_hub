@@ -30,7 +30,9 @@ Les clés se trouvent dans **Supabase Dashboard → Settings → API** (URL du p
 
 ---
 
-## 2. Créer l’APK Android
+## 2. Créer l’APK/.aab Android
+
+Cela produit un APK par architecture (arm64-v8a, armeabi-v7a, x86_64) dans le même dossier.
 
 À la racine du projet :
 
@@ -38,16 +40,12 @@ Les clés se trouvent dans **Supabase Dashboard → Settings → API** (URL du p
 flutter build apk
 ```
 
-L’APK est généré dans :  
-`build/app/outputs/flutter-apk/app-release.apk`
-
-Pour une version optimisée (plus petit) :
+Pour une version final demander pour relase google App bundles
 
 ```bash
-flutter build apk --split-per-abi
+flutter build appbundle --release # Version 
 ```
 
-Cela produit un APK par architecture (arm64-v8a, armeabi-v7a, x86_64) dans le même dossier.
 
 
 ## 3. Vérifier que la BDD est à jour sur le schéma de prod
