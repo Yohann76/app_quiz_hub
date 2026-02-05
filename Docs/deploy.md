@@ -100,11 +100,16 @@ Cela produit un APK par architecture (arm64-v8a, armeabi-v7a, x86_64) dans le m�
 flutter build apk
 ```
 
-Pour une version final demander pour relase google App bundles
+Pour une version finale pour le Play Store (App Bundle) :
 
 ```bash
 flutter build appbundle --release # Version 
 ```
+
+**Versionnement (obligatoire à chaque nouvel upload)**
+Dans `pubspec.yaml`, la ligne `version: 1.0.0+2` signifie :
+- **1.0.0** = version affichée (versionName), tu peux la changer comme tu veux (ex. 1.0.1, 1.1.0).
+- **+2** = numéro de build (versionCode) : le Play Store exige qu’il **augmente à chaque upload** (2, 3, 4…). Si tu as déjà publié la 1, mets au moins +2, puis +3 pour la prochaine, etc.
 
 
 
