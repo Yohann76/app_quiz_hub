@@ -1,4 +1,4 @@
-git package app.quizhub
+package app.quizhub
 
 import io.flutter.embedding.android.FlutterActivity
 
