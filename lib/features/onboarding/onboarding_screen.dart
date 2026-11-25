@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_constants.dart';
 import '../../shared/models/language.dart';
-import '../../shared/models/user_profile.dart';
-import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
-import '../../shared/services/database_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -31,28 +28,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _initializeServices() async {
     final prefs = await SharedPreferences.getInstance();
-    final authService = AuthService();
-    setState(() {
-      _userService = UserService(
-        authService: authService,
-        databaseService: DatabaseService(),
-        prefs: prefs,
-      );
-    });
-    
+    if (!mounted) return;
+    _userService = UserService(prefs);
+
     // Charger le profil actuel pour pré-remplir
-    final profile = await _userService.getCurrentProfile();
-    if (profile != null) {
-      if (mounted) {
-        setState(() {
-          // Si le username vient de Google, on peut le pré-remplir mais permettre de le modifier
-          if (profile.username != null && profile.username!.isNotEmpty) {
-            _usernameController.text = profile.username!;
-          }
-          _selectedLanguage = profile.language;
-        });
-      }
-    }
+    final profile = _userService.getCurrentProfile();
+    setState(() {
+      _usernameController.text = profile.username ?? '';
+      _selectedLanguage = profile.language;
+    });
   }
 
   @override
@@ -79,42 +63,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
 
     try {
-      // Vérifier que l'utilisateur est toujours connecté
-      final authService = AuthService();
-      if (!authService.isAuthenticated) {
-        throw Exception('Session expirée. Veuillez vous reconnecter.');
-      }
-
-      // Mettre à jour le username et la langue en une seule opération
-      final username = _usernameController.text.trim();
-      if (username.isEmpty) {
-        throw Exception('Le pseudo est obligatoire');
-      }
-
-      // Obtenir le profil actuel ou créer un nouveau
-      var profile = await _userService.getCurrentProfile();
-      if (profile == null) {
-        final user = authService.currentUser;
-        if (user == null) {
-          throw Exception('Aucun utilisateur connecté. Veuillez vous reconnecter.');
-        }
-        profile = UserProfile(
-          id: user.id,
-          email: user.email,
-        );
-      }
-
-      // Mettre à jour le profil avec username et langue
-      final updatedProfile = profile.copyWith(
-        username: username,
-        language: _selectedLanguage,
-        updatedAt: DateTime.now(),
+      await _userService.saveProfile(
+        username: _usernameController.text.trim(),
+        language: _selectedLanguage!,
       );
-
-      await _userService.saveProfile(updatedProfile);
-      
-      // Sauvegarder aussi la langue dans SharedPreferences pour compatibilité
-      await _userService.updateLanguage(_selectedLanguage!);
 
       if (mounted) {
         Navigator.of(context).pushReplacementNamed('/home');
@@ -190,7 +142,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 labelText: 'Pseudo *',
                                 hintText: 'Entrez votre pseudo',
                                 prefixIcon: Icon(Icons.person),
-                                helperText: 'Ce pseudo sera visible par les autres joueurs',
+                                helperText: 'Ce pseudo reste sur votre téléphone',
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {

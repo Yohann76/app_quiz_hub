@@ -1,12 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/utils/category_normalizer.dart';
-import '../../shared/services/auth_service.dart';
 import '../../shared/services/user_service.dart';
-import '../../shared/services/database_service.dart';
+import '../../shared/services/answer_storage.dart';
 import '../../shared/services/quiz_service.dart';
 import '../../shared/services/language_service.dart';
 import '../../shared/services/translation_service.dart';
@@ -35,34 +33,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserProfile() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final authService = AuthService();
-      final userService = UserService(
-        authService: authService,
-        databaseService: DatabaseService(),
-        prefs: prefs,
+      final profile = UserService(prefs).getCurrentProfile();
+      final quizService = QuizService(
+        languageService: LanguageService(prefs),
+        answerStorage: AnswerStorage(prefs),
       );
-
-      final profile = await userService.getCurrentProfile();
-      final language = profile?.language;
-      
-      // Charger les statistiques calculées depuis user_question_responses
-      Map<String, dynamic>? stats;
-      if (authService.isAuthenticated) {
-        final languageService = LanguageService(prefs);
-        final quizService = QuizService(
-          languageService: languageService,
-          databaseService: DatabaseService(),
-          authService: authService,
-          prefs: prefs,
-        );
-        // Ne pas filtrer par langue pour avoir toutes les stats
-        stats = await quizService.calculateUserStats(language: null);
-      }
+      // Ne pas filtrer par langue pour avoir toutes les stats
+      final stats = await quizService.calculateUserStats(language: null);
       
       if (mounted) {
         setState(() {
           _userProfile = profile;
-          _currentLanguage = language;
+          _currentLanguage = profile.language;
           _userStats = stats;
           _isLoading = false;
         });
@@ -76,33 +58,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  /// Sauvegarder la langue dans Supabase et cache local
+  /// Sauvegarder la langue sur le téléphone
   Future<void> _saveLanguage(Language language) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final authService = AuthService();
-      
-      if (authService.isAuthenticated) {
-        final userService = UserService(
-          authService: authService,
-          databaseService: DatabaseService(),
-          prefs: prefs,
+      await UserService(prefs).updateLanguage(language);
+
+      // Recharger le profil pour mettre à jour l'affichage
+      await _loadUserProfile();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Langue sauvegardée avec succès'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
         );
-        
-        await userService.updateLanguage(language);
-        
-        // Recharger le profil pour mettre à jour l'affichage
-        await _loadUserProfile();
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Langue sauvegardée avec succès'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
       }
     } catch (e) {
       if (mounted) {
@@ -172,11 +144,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   
                   const SizedBox(height: AppConstants.largePadding),
                   
-                  // Classement
-                  _LeaderboardCard(userProfile: _userProfile, language: lang),
-                  
-                  const SizedBox(height: AppConstants.largePadding),
-                  
                   // Graphique en forme d'araignée par catégorie
                   _CategoryRadarChartCard(stats: _userStats, language: lang),
                   
@@ -184,11 +151,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   
                   // Points par catégorie
                   _CategoryStatsCard(stats: _userStats, language: lang),
-                  
-                  const SizedBox(height: AppConstants.largePadding * 2),
-                  
-                  // Bouton de déconnexion
-                  _LogoutButton(language: lang),
                   
                   const SizedBox(height: AppConstants.largePadding),
                 ],
@@ -230,15 +192,6 @@ class _ProfileHeader extends StatelessWidget {
             letterSpacing: 1,
           ),
         ),
-        if (userProfile?.email != null)
-          Text(
-            userProfile!.email!,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
       ],
     );
   }
@@ -309,137 +262,6 @@ class _GlobalStatsCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _LeaderboardCard extends StatefulWidget {
-  final UserProfile? userProfile;
-  final Language language;
-
-  const _LeaderboardCard({this.userProfile, required this.language});
-
-  @override
-  State<_LeaderboardCard> createState() => _LeaderboardCardState();
-}
-
-class _LeaderboardCardState extends State<_LeaderboardCard> {
-  Map<String, dynamic>? _rankingData;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadRanking();
-  }
-
-  Future<void> _loadRanking() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final authService = AuthService();
-      
-      if (!authService.isAuthenticated) return;
-
-      final languageService = LanguageService(prefs);
-      final quizService = QuizService(
-        languageService: languageService,
-        databaseService: DatabaseService(),
-        authService: authService,
-        prefs: prefs,
-      );
-
-      final ranking = await quizService.getUserRanking();
-      
-      if (mounted) {
-        setState(() {
-          _rankingData = ranking;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = TranslationService();
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.largePadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            t.translate('classement', widget.language),
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w900,
-              color: AppConstants.primaryBlue,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: AppConstants.largePadding),
-          if (_isLoading)
-            const Center(child: LinearProgressIndicator())
-          else if (_rankingData == null || _rankingData!['total_players'] == 0)
-            Center(child: Text(t.translate('no_ranking', widget.language), style: const TextStyle(color: Colors.grey)))
-          else
-            _buildRankingContent(t),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRankingContent(TranslationService t) {
-    final position = _rankingData!['position'] as int? ?? 0;
-    final totalPlayers = _rankingData!['total_players'] as int? ?? 0;
-    final isTop10 = _rankingData!['is_top_10_percent'] as bool? ?? false;
-    final isTop20 = _rankingData!['is_top_20_percent'] as bool? ?? false;
-    final isTop50 = _rankingData!['is_top_50_percent'] as bool? ?? false;
-
-    Color badgeColor = Colors.grey;
-    String badgeText = 'Joueur';
-    if (isTop10) { badgeColor = AppConstants.primaryOrange; badgeText = 'Top 10%'; }
-    else if (isTop20) { badgeColor = AppConstants.darkOrange; badgeText = 'Top 20%'; }
-    else if (isTop50) { badgeColor = AppConstants.primaryBlue; badgeText = 'Top 50%'; }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '$position / $totalPlayers',
-              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.black87),
-            ),
-            Text(t.translate('rank_actual', widget.language), style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: badgeColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: badgeColor.withOpacity(0.5)),
-          ),
-          child: Text(
-            badgeText,
-            style: TextStyle(color: badgeColor, fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -565,7 +387,7 @@ class _CategoryStatsCard extends StatelessWidget {
           ),
           const SizedBox(height: AppConstants.largePadding),
           if (categories.isEmpty)
-            Center(child: Text(t.translate('no_ranking', language), style: const TextStyle(color: Colors.grey)))
+            Center(child: Text(t.translate('no_stats', language), style: const TextStyle(color: Colors.grey)))
           else
             ...categories.map((cat) {
               final total = totalByCategory[cat] as int;
@@ -602,56 +424,6 @@ class _CategoryStatsCard extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _LogoutButton extends StatelessWidget {
-  final Language language;
-  const _LogoutButton({required this.language});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = TranslationService();
-    return TextButton.icon(
-      onPressed: () => _showLogoutDialog(context, t),
-      icon: const Icon(Icons.logout_rounded, color: Colors.red),
-      label: Text(
-        t.translate('logout', language),
-        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w900, letterSpacing: 1),
-      ),
-      style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16)),
-    );
-  }
-
-  Future<void> _showLogoutDialog(BuildContext context, TranslationService t) async {
-    final shouldLogout = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(t.translate('logout', language)),
-        content: Text(t.translate('confirm_logout', language)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(t.translate('cancel', language), style: const TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text(t.translate('logout', language)),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldLogout != true || !context.mounted) return;
-
-    try {
-      await AuthService().signOut();
-      if (context.mounted) Navigator.of(context).pushNamedAndRemoveUntil('/auth', (route) => false);
-    } catch (e) {
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-    }
   }
 }
 

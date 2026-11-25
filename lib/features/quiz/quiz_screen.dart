@@ -6,8 +6,7 @@ import '../../shared/models/question.dart';
 import '../../shared/models/language.dart';
 import '../../shared/services/language_service.dart';
 import '../../shared/services/quiz_service.dart';
-import '../../shared/services/database_service.dart';
-import '../../shared/services/auth_service.dart';
+import '../../shared/services/answer_storage.dart';
 import '../../shared/services/user_service.dart';
 import '../../shared/services/audio_service.dart';
 import '../../shared/services/translation_service.dart';
@@ -29,7 +28,7 @@ class _QuizScreenState extends State<QuizScreen> {
   Timer? _autoSkipTimer;
 
   late QuizService _quizService;
-  // Stats du compte (Supabase), pas de la session
+  // Stats cumulées du joueur, pas seulement de la session
   int _accountScore = 0;
   int _accountCorrect = 0;
   int _accountTotalAnswered = 0;
@@ -56,24 +55,14 @@ class _QuizScreenState extends State<QuizScreen> {
   Future<void> _initializeQuiz() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final authService = AuthService();
-      final userService = UserService(
-        authService: authService,
-        databaseService: DatabaseService(),
-        prefs: prefs,
-      );
-
-      // Charger la langue depuis le profil utilisateur
-      final profile = await userService.getCurrentProfile();
-      final language = profile?.language ?? Language.french;
+      // Charger la langue depuis le profil local
+      final language =
+          UserService(prefs).getCurrentProfile().language ?? Language.french;
 
       // Initialiser les services
-      final languageService = LanguageService(prefs);
       _quizService = QuizService(
-        languageService: languageService,
-        databaseService: DatabaseService(),
-        authService: authService,
-        prefs: prefs,
+        languageService: LanguageService(prefs),
+        answerStorage: AnswerStorage(prefs),
       );
 
       // Charger la dernière question non répondue + total de questions (pour la barre)
@@ -142,7 +131,7 @@ class _QuizScreenState extends State<QuizScreen> {
       _selectedAnswerIndex = index;
       _showResult = true;
       _isSaving = true;
-      _accountScore += isCorrect ? 5 : 0;
+      _accountScore += isCorrect ? QuizService.pointsPerCorrectAnswer : 0;
       _accountCorrect += isCorrect ? 1 : 0;
       _accountTotalAnswered += 1;
     });

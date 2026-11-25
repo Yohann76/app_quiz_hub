@@ -23,10 +23,10 @@ Payment:
 
 The objective of this application is to create an Android and iOS general knowledge app that is enjoyable to use, supports multiple languages, and is fast with a wide variety of questions.
 
-## Storage (Supabase)
+## Storage (local, shared_preferences)
 
-- User (in supabase)
-- Response (in supabase)
+- Profile (username, language)
+- Responses
 
 ## Data file Example
 

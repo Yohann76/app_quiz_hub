@@ -4,7 +4,7 @@
 
 - Dart: https://dart.dev/
 - Flutter: https://flutter.dev/
-- Supabase : https://supabase.com/
+- shared_preferences : stockage local sur le téléphone (aucun serveur, aucun compte)
 
 Project: 
 
@@ -12,12 +12,11 @@ Project:
 $ cd app_quiz_hub
 ``` 
 
-## Configuration
+## Données du joueur
 
-```
-Create your app_quiz_hub/.env.local (from .env.example)
-Create your app_quiz_hub/assets/config.json (from config.json.example)
-```
+Le pseudo, la langue et les réponses sont enregistrés uniquement sur le téléphone.
+Désinstaller l'application ou effacer ses données les supprime.
+Aucune configuration n'est nécessaire.
 
 ## Build app 
 

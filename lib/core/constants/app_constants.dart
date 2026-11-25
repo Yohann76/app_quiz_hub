@@ -5,17 +5,10 @@ class AppConstants {
   static const String appName = 'World Quizz Hub';
   static const String appVersion = '1.0.0';
   
-  // Supabase Tables
-  static const String usersTable = 'users';
-  static const String userQuestionResponsesTable = 'user_question_responses'; // Table principale pour les stats
-  
-  // Note: user_stats et quiz_history ont été supprimées car les stats sont calculées
-  // dynamiquement depuis user_question_responses via QuizService.calculateUserStats()
-  
   // Shared Preferences Keys
   static const String selectedLanguageKey = 'selected_language';
-  static const String userIdKey = 'user_id';
-  static const String isFirstLaunchKey = 'is_first_launch';
+  static const String usernameKey = 'username';
+  static const String answersKey = 'answers';
   
   // Quiz Settings
   static const int questionsPerQuiz = 10;
@@ -42,7 +35,6 @@ class AppConstants {
   static const Duration longAnimation = Duration(milliseconds: 800);
   
   // Error Messages
-  static const String networkErrorMessage = 'Erreur de connexion. Vérifiez votre connexion internet.';
   static const String generalErrorMessage = 'Une erreur s\'est produite. Veuillez réessayer.';
   static const String invalidQuestionFormatMessage = 'Format de question invalide.';
   

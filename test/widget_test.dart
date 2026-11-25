@@ -1,30 +1,34 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:app_quiz_hub/main.dart';
 
+/// Laisse passer l'écran de démarrage (2 s) puis la transition.
+Future<void> passSplash(WidgetTester tester) async {
+  await tester.pump(const Duration(seconds: 3));
+  await tester.pumpAndSettle();
+}
+
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('le premier lancement demande le pseudo, sans connexion',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+
     await tester.pumpWidget(const QuizHubApp());
+    await passSplash(tester);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Complétez votre profil'), findsOneWidget);
+    expect(find.text('Email'), findsNothing);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('un profil enregistré ouvre directement l\'accueil',
+      (tester) async {
+    SharedPreferences.setMockInitialValues(
+        {'username': 'Alex', 'selected_language': 'fr'});
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.pumpWidget(const QuizHubApp());
+    await passSplash(tester);
+
+    expect(find.text('DÉMARRER'), findsOneWidget);
   });
 }

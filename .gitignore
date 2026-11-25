@@ -49,16 +49,13 @@ app.*.map.json
 # Fichiers d'environnement
 .env.local
 
-# Configuration Supabase (ne pas commiter les vraies clés)
-assets/config.json
-
-# Supabase local (garder les migrations dans Git)
-supabase/.branches
-supabase/.temp
-supabase/.seed
-supabase/.volumes
-
 # Signature Android release (ne jamais commiter)
 android/key.properties
 *.jks
 *.keystore
+
+# Mots de passe de signature (ne jamais commiter)
+pass key*.docx
+
+# Rapports générés par Gradle
+/android/build/

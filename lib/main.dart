@@ -1,52 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/app_constants.dart';
-import 'core/config/supabase_config.dart';
 import 'features/onboarding/language_selection_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
-import 'features/auth/auth_screen.dart';
 import 'features/quiz/home_screen.dart';
 import 'features/quiz/quiz_screen.dart';
 import 'features/profile/profile_screen.dart';
-import 'shared/services/auth_service.dart';
 import 'shared/services/user_service.dart';
-import 'shared/services/database_service.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // config.json (assets) = utilisé sur toutes les plateformes, y compris Android/APK
-  // (les .env ne sont pas inclus dans l'APK, donc sans ça écran blanc sur téléphone)
-  await SupabaseConfig.loadConfig();
-  try {
-    await dotenv.load(fileName: ".env.local");
-  } catch (_) {
-    try {
-      await dotenv.load(fileName: ".env");
-    } catch (_) {}
-  }
-  
-  // Initialiser Supabase
-  try {
-    await Supabase.initialize(
-      url: SupabaseConfig.supabaseUrl,
-      anonKey: SupabaseConfig.supabaseAnonKey,
-    );
-    if (kDebugMode) {
-      print('✅ Supabase initialisé avec succès');
-    }
-  } catch (e) {
-    // Gérer l'erreur d'initialisation Supabase
-    // L'application peut continuer sans Supabase pour le développement local
-    if (kDebugMode) {
-      print('❌ Erreur lors de l\'initialisation Supabase: $e');
-      print('L\'application continue sans Supabase. Configurez vos clés pour activer Supabase.');
-    }
-  }
-  
   runApp(const QuizHubApp());
 }
 
@@ -107,7 +71,6 @@ class QuizHubApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
       routes: {
-        '/auth': (context) => const AuthScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
         '/home': (context) => const HomeScreen(),
         '/language': (context) => const LanguageSelectionScreen(),
@@ -172,70 +135,21 @@ class _SplashScreenState extends State<SplashScreen>
       
       if (!mounted) return;
 
-      final authService = AuthService();
-      
-      if (kDebugMode) {
-        print('🔍 Vérification de l\'authentification...');
-        print('Utilisateur connecté: ${authService.isAuthenticated}');
-        if (authService.currentUser != null) {
-          print('User ID: ${authService.currentUser!.id}');
-          print('Email: ${authService.currentUser!.email}');
-        }
-      }
-      
-      // Vérifier si l'utilisateur est connecté
-      if (!authService.isAuthenticated) {
-        // Pas connecté : aller à l'authentification
-        if (kDebugMode) {
-          print('➡️ Redirection vers /auth (non authentifié)');
-        }
-        if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/auth');
-        }
-        return;
-      }
-
-      // Utilisateur connecté : vérifier si le profil est complet
-      if (kDebugMode) {
-        print('🔍 Vérification du profil utilisateur...');
-      }
-      
       final prefs = await SharedPreferences.getInstance();
-      final userService = UserService(
-        authService: authService,
-        databaseService: DatabaseService(),
-        prefs: prefs,
-      );
+      final isComplete = UserService(prefs).isProfileComplete();
 
-      final isComplete = await userService.isProfileComplete();
-      
-      if (kDebugMode) {
-        print('Profil complet: $isComplete');
-      }
-      
       if (mounted) {
-        if (isComplete) {
-          // Profil complet : aller à l'écran principal
-          if (kDebugMode) {
-            print('➡️ Redirection vers /home (profil complet)');
-          }
-          Navigator.of(context).pushReplacementNamed('/home');
-        } else {
-          // Profil incomplet : aller à l'onboarding
-          if (kDebugMode) {
-            print('➡️ Redirection vers /onboarding (profil incomplet)');
-          }
-          Navigator.of(context).pushReplacementNamed('/onboarding');
-        }
+        // Profil local complet : écran principal, sinon création du profil
+        Navigator.of(context)
+            .pushReplacementNamed(isComplete ? '/home' : '/onboarding');
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('❌ Erreur lors de la vérification: $e');
+        print('❌ Erreur lors de la lecture du profil: $e');
         print('Stack trace: $stackTrace');
       }
       if (mounted) {
-        // En cas d'erreur, aller à l'authentification
-        Navigator.of(context).pushReplacementNamed('/auth');
+        Navigator.of(context).pushReplacementNamed('/onboarding');
       }
     }
   }

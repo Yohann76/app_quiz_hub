@@ -1,5 +1,8 @@
 # Supabase 
 
+> Remplacé par [004-local-storage](004-local-storage.md) : l'application n'utilise plus Supabase.
+
+
 Option in supabase : 
 
 - Les utilisateurs devront confirmer leur adresse électronique avant de se connecter pour la première fois. (desactivate on https://supabase.com/dashboard/project/)
